@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campingrecord.mapper.CampingMapper">
+
+  <select id="myCampingRecordPage" parameterType="com.example.campingrecord.dto.CampingRecordDto$GetCampingRecordListDto"
+          resultType="com.example.campingrecord.vo.CampingListVo">
+    select c.id,
+           c.address_id,
+           c.visible_status,
+           c.camping_start_time,
+           c.camping_end_time,
+           c.camping_participant,
+           c.total_amount,
+           c.remark,
+           c.create_by,
+           c.create_time,
+           c.update_by,
+           c.update_time,
+           cac.comment,
+           cac.score
+    from camping c
+    left join camping_user_relation cur on c.id = cur.camping_id
+    left join camping_address_comment cac on c.id = cac.camping_id
+    where cur.user_id = #{item.userId}
+    and c.delete_flag = 0;
+  </select>
+</mapper>
