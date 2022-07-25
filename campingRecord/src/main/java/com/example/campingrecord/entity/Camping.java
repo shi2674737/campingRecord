@@ -50,6 +50,16 @@ public class Camping implements Serializable {
     private Long totalAmount;
 
     /**
+     * 参与人数
+     */
+    private int peopleNum;
+
+    /**
+     * 天气
+     */
+    private String weather;
+
+    /**
      * 备注
      */
     private String remark;

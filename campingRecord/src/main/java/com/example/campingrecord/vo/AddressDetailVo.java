@@ -1,19 +1,15 @@
-package com.example.campingrecord.entity;
+package com.example.campingrecord.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.example.campingrecord.entity.CampingAddressComment;
 import lombok.Data;
 
-import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * address
- * @author 
- */
 @Data
-public class Address implements Serializable {
-    @TableId(value = "id", type = IdType.AUTO)
+public class AddressDetailVo {
+
     private Long id;
 
     /**
@@ -74,5 +70,10 @@ public class Address implements Serializable {
 
     private Long updateBy;
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 平均分
+     */
+    private BigDecimal avgScore;
+
+    private List<CampingAddressComment> comments;
 }

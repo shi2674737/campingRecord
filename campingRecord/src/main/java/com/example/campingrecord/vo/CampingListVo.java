@@ -13,6 +13,10 @@ public class CampingListVo {
      * 地点
      */
     private Long addressId;
+    /**
+     * 地点
+     */
+    private String addressName;
 
     /**
      * 0 所有人可见 5 关联人可见 9 仅自己可见
@@ -40,6 +44,16 @@ public class CampingListVo {
      * 花费总金额
      */
     private Long totalAmount;
+
+    /**
+     * 参与人数
+     */
+    private int peopleNum;
+
+    /**
+     * 天气
+     */
+    private String weather;
 
     /**
      * 备注

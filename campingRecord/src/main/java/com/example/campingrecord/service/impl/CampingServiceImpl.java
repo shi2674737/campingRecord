@@ -6,16 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.campingrecord.constant.DeleteFlagEnum;
 import com.example.campingrecord.dto.CampingRecordDto;
-import com.example.campingrecord.entity.Camping;
-import com.example.campingrecord.entity.CampingAddressComment;
-import com.example.campingrecord.entity.CampingImage;
-import com.example.campingrecord.entity.CampingUserRelation;
+import com.example.campingrecord.entity.*;
 import com.example.campingrecord.exception.BaseException;
 import com.example.campingrecord.mapper.CampingMapper;
-import com.example.campingrecord.service.CampingAddressCommentService;
-import com.example.campingrecord.service.CampingImageService;
-import com.example.campingrecord.service.CampingService;
-import com.example.campingrecord.service.CampingUserRelationService;
+import com.example.campingrecord.service.*;
 import com.example.campingrecord.utils.UserUtil;
 import com.example.campingrecord.vo.CampingDetailVo;
 import com.example.campingrecord.vo.CampingImageVo;
@@ -44,6 +38,12 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
 
     @Autowired
     CampingAddressCommentService campingAddressCommentService;
+
+    @Autowired
+    AddressService addressService;
+
+    @Autowired
+    OssService ossService;
 
     @Override
     @Transactional
@@ -174,7 +174,8 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         List<CampingImageVo> campingImageVoList = campingImageList.stream().map(campingImage -> {
             CampingImageVo campingImageVo = new CampingImageVo();
             BeanUtils.copyProperties(campingImage, campingImageVo);
-            // TODO campingImageVo.setImageFullUrl("");
+            String imageFullUrl = ossService.getImageUrl(campingImage.getImageUrl());
+            campingImageVo.setImageFullUrl(imageFullUrl);
             return campingImageVo;
         }).collect(Collectors.toList());
         campingDetailVo.setImages(campingImageVoList);
@@ -191,6 +192,12 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         CampingAddressComment campingAddressComment = campingAddressCommentService.getOne(campingAddressCommentQuery);
         campingDetailVo.setComment(campingAddressComment.getComment());
         campingDetailVo.setScore(campingAddressComment.getScore());
+
+        // 获取地点名称
+        Address address = addressService.getById(camping.getAddressId());
+        if (address != null) {
+            campingDetailVo.setAddressName(address.getName());
+        }
 
         return campingDetailVo;
     }

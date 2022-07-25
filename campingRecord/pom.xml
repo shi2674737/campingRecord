@@ -41,6 +41,13 @@
             <version>3.8.1</version>
         </dependency>
 
+        <!-- OSS -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.13.0</version>
+        </dependency>
+
         <!--mysql-->
         <dependency>
             <groupId>com.baomidou</groupId>

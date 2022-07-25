@@ -13,3 +13,10 @@ mybatis:
   typeAliasesPackage: com.example.campingrecord.mapper
   mapperLocations: classpath:mapper/*.xml
 
+oss:
+  endpoint: https://oss-cn-zhangjiakou.aliyuncs.com
+#    endpoint: https://oss-cn-zhangjiakou-internal.aliyuncs.com
+  accessKeyId: LTAI5tQcQRktQcnjEZVapBSv
+  accessKeySecret: Blo4BmDaU7gBwJz4PPO5mndvf5JDGb
+  bucketName: camping
+  path: camping/

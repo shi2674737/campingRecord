@@ -6,11 +6,14 @@
           resultType="com.example.campingrecord.vo.CampingListVo">
     select c.id,
            c.address_id,
+           a.name AS addressName,
            c.visible_status,
            c.camping_start_time,
            c.camping_end_time,
            c.camping_participant,
            c.total_amount,
+           c.people_num,
+           c.weather,
            c.remark,
            c.create_by,
            c.create_time,
@@ -21,7 +24,9 @@
     from camping c
     left join camping_user_relation cur on c.id = cur.camping_id
     left join camping_address_comment cac on c.id = cac.camping_id
+    left join address a on a.id = c.address_id
     where cur.user_id = #{item.userId}
-    and c.delete_flag = 0;
+    and c.delete_flag = 0
+    order by create_time desc;
   </select>
 </mapper>

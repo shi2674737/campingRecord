@@ -36,7 +36,7 @@ public class CampingController {
     }
 
     @GetMapping("/getMyCampingRecordList")
-    public UResult<String> getMyCampingRecordList(CampingRecordDto.GetCampingRecordListDto getCampingRecordListDto) {
+    public UResult<Page<CampingListVo>> getMyCampingRecordList(CampingRecordDto.GetCampingRecordListDto getCampingRecordListDto) {
         log.info("getMyCampingRecordList start getCampingRecordListDto = {}", getCampingRecordListDto);
         Page<CampingListVo> campingRecordList = campingService.getMyCampingRecordList(getCampingRecordListDto);
         log.info("getMyCampingRecordList success. campingRecordList = {}", campingRecordList);
@@ -44,7 +44,7 @@ public class CampingController {
     }
 
     @GetMapping("/getCampingRecordDetail")
-    public UResult<String> getCampingRecordDetail(CampingRecordDto.GetCampingRecordDetailDto getCampingRecordDetailDto) {
+    public UResult<CampingDetailVo> getCampingRecordDetail(CampingRecordDto.GetCampingRecordDetailDto getCampingRecordDetailDto) {
         log.info("getCampingRecordDetail start getCampingRecordListDto = {}", getCampingRecordDetailDto);
         CampingDetailVo campingRecordDetail = campingService.getCampingRecordDetail(getCampingRecordDetailDto);
         log.info("getCampingRecordDetail success. campingRecordList = {}", campingRecordDetail);
