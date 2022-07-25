@@ -4,10 +4,10 @@ spring:
   application:
     name: ura-service
   datasource:
-    url: jdbc:mysql://39.99.235.0:3306/camping_record
+    url: jdbc:mysql://127.0.0.1:3306/camping_record
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: akcxakakc1
+    password: 123456
 
 mybatis:
   typeAliasesPackage: com.example.campingrecord.mapper
@@ -16,7 +16,7 @@ mybatis:
 oss:
   endpoint: https://oss-cn-zhangjiakou.aliyuncs.com
 #    endpoint: https://oss-cn-zhangjiakou-internal.aliyuncs.com
-  accessKeyId: LTAI5tQcQRktQcnjEZVapBSv
-  accessKeySecret: Blo4BmDaU7gBwJz4PPO5mndvf5JDGb
+  accessKeyId: accessKeyId
+  accessKeySecret: accessKeySecret
   bucketName: camping
   path: camping/
