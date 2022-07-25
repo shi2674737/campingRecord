@@ -1,67 +1,46 @@
 import request from '@/utils/axios'
-import {BASE_URL_CONFIG} from '@/utils/axios'
 
+//增
+export function addCampingRecord(data) {
+  return request({
+    url: '/camping/addCampingRecord',
+    method: 'post',
+    data: data,
+  })
+}
 
-// 通过输入的番名查询
-export function getMyCampingRecordList(param, userId) {
+// 改
+export function updateCampingRecord(data) {
+  return request({
+    url: '/camping/updateCampingRecord',
+    method: 'post',
+    data: data,
+  })
+}
+
+// 列表
+export function getMyCampingRecordList(params) {
   return request({
     url: '/camping/getMyCampingRecordList',
     method: 'get',
-    headers: {'userId': userId},
-    params: param
+    params: params,
   })
 }
 
-export function getCartoonRelationDetail(cartoonPartId, userId) {
+// 详情
+export function getCampingRecordDetail(params) {
   return request({
-    url: '/cartoon/getCartoonRelationDetail',
+    url: '/camping/getCampingRecordDetail',
     method: 'get',
-    headers: {'userId': userId},
-    params: {'cartoonPartId': cartoonPartId},
+    params: params,
   })
 }
 
-
-// 获取番剧名称select列表
-export function getAllCartoonInfos() {
+// 删
+export function deleteMyCampingRecord(campingId) {
   return request({
-    url: '/cartoon/getAllCartoonInfos',
-    method: 'get'
-  })
-}
-// 获取分季名称select列表
-export function getAllCartoonParts(cartoonInfoId) {
-  return request({
-    url: '/cartoon/getAllCartoonParts',
-    method: 'get',
-    params: {'cartoonInfoId': cartoonInfoId},
-  })
-}
-
-// 新增追番记录
-export function addCartoonRecord(data, userId) {
-  return request({
-    url: '/cartoon/addCartoonRecord',
-    method: 'post',
-    data: data,
-    headers: { 'content-type': 'application/json', 'userId': userId}
-  })
-}
-
-// 导出追番记录 模拟a标签方式
-export function exportCartoonRecords(userId) {
-  let a = document.createElement('a')
-  console.log(BASE_URL_CONFIG.URL);
-  a.href = BASE_URL_CONFIG.URL + "/cartoon/exportCartoonRecords/" + userId
-  a.click();
-}
-
-// 导入
-export function uploadCartoonRecords(data, userId) {
-  return request({
-    url: '/cartoon/uploadCartoonRecords',
-    method: 'post',
-    data: data,
-    headers: { 'userId': userId}
+    url: '/camping/deleteMyCampingRecord',
+    method: 'delete',
+    params: {"campingId": campingId},
   })
 }

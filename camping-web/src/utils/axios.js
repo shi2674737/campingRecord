@@ -4,8 +4,6 @@ import axios from 'axios'
 export const BASE_URL_CONFIG = {
   URL: 'http://localhost:8081/api/v1',
   // URL: 'http://localhost:8181',
-  // URL : 'http://39.99.235.0:8171',
-  // URL: 'http://39.99.235.0:8181',
 };
 
 // 创建axios实例

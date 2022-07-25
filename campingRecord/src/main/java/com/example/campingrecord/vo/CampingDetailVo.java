@@ -13,6 +13,7 @@ public class CampingDetailVo {
     /**
      * 地点
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long addressId;
     /**
      * 地点
@@ -20,9 +21,14 @@ public class CampingDetailVo {
     private String addressName;
 
     /**
-     * 0 所有人可见 5 关联人可见 9 仅自己可见
+     * 0 所有人可见 5 关联人可见
      */
     private Integer visibleStatus;
+
+    /**
+     * 0 所有人可见 5 关联人可见
+     */
+    private String visibleStatusStr;
 
     /**
      * 露营开始时间

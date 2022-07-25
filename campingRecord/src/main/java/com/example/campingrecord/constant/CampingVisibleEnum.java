@@ -8,7 +8,7 @@ package com.example.campingrecord.constant;
 public enum CampingVisibleEnum implements ConvertibleEnum<Integer> {
 
     ALL(0, "所有人可见", 0),
-    UNREGISTERED(5, "编辑人可见", 1);
+    UNREGISTERED(5, "参与人可见", 1);
 
     private Integer code;
     private String name;

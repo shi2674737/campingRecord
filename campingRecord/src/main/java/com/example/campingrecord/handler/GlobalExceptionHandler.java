@@ -1,5 +1,6 @@
 package com.example.campingrecord.handler;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.example.campingrecord.exception.BaseException;
 import com.example.campingrecord.exception.TokenException;
@@ -58,6 +59,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(TokenExpiredException.class)
     public UResult error(TokenExpiredException e) {
+        log.error(ExceptionUtil.getMessage(e));
+        return UResult.setResult(ResultCode.UN_AUTHORIZED);
+    }
+
+    /**
+     * JwtUtil.verify(token);抛出该异常
+     * @param e e
+     * @return
+     */
+    @ExceptionHandler(JWTDecodeException.class)
+    public UResult error(JWTDecodeException e) {
         log.error(ExceptionUtil.getMessage(e));
         return UResult.setResult(ResultCode.UN_AUTHORIZED);
     }

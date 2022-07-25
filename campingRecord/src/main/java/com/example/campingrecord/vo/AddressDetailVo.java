@@ -1,6 +1,7 @@
 package com.example.campingrecord.vo;
 
 import com.example.campingrecord.entity.CampingAddressComment;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.util.List;
 @Data
 public class AddressDetailVo {
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
 
     /**

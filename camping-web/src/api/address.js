@@ -1,67 +1,45 @@
 import request from '@/utils/axios'
-import {BASE_URL_CONFIG} from '@/utils/axios'
 
 
-// 通过输入的番名查询
-export function getCartoonParts(param, userId) {
+// 增
+export function addAddress(data) {
   return request({
-    url: '/cartoon/getCartoonParts',
-    method: 'get',
-    headers: {'userId': userId},
-    params: param
+    url: '/address/addAddress',
+    method: 'post',
+    data: data
   })
 }
 
-export function getCartoonRelationDetail(cartoonPartId, userId) {
+// 改
+export function updateAddress(data) {
   return request({
-    url: '/cartoon/getCartoonRelationDetail',
-    method: 'get',
-    headers: {'userId': userId},
-    params: {'cartoonPartId': cartoonPartId},
+    url: '/address/updateAddress',
+    method: 'post',
+    data: data
   })
 }
 
-
-// 获取番剧名称select列表
-export function getAllCartoonInfos() {
+// 列表
+export function getAddressList(params) {
   return request({
-    url: '/cartoon/getAllCartoonInfos',
+    url: '/address/getAddressList',
+    method: 'get',
+    params: params
+  })
+}
+// 详情
+export function getAddressDetail(params) {
+  return request({
+    url: '/address/getAddressDetail',
+    method: 'get',
+    params: params
+  })
+}
+
+// 填充下拉菜单
+export function getAllAddressList() {
+  return request({
+    url: '/address/getAllAddressList',
     method: 'get'
-  })
-}
-// 获取分季名称select列表
-export function getAllCartoonParts(cartoonInfoId) {
-  return request({
-    url: '/cartoon/getAllCartoonParts',
-    method: 'get',
-    params: {'cartoonInfoId': cartoonInfoId},
-  })
-}
-
-// 新增追番记录
-export function addCartoonRecord(data, userId) {
-  return request({
-    url: '/cartoon/addCartoonRecord',
-    method: 'post',
-    data: data,
-    headers: { 'content-type': 'application/json', 'userId': userId}
-  })
-}
-
-// 导出追番记录 模拟a标签方式
-export function exportCartoonRecords(userId) {
-  let a = document.createElement('a')
-  console.log(BASE_URL_CONFIG.URL);
-  a.href = BASE_URL_CONFIG.URL + "/cartoon/exportCartoonRecords/" + userId
-  a.click();
-}
-
-// 导入
-export function uploadCartoonRecords(data, userId) {
-  return request({
-    url: '/cartoon/uploadCartoonRecords',
-    method: 'post',
-    data: data,
-    headers: { 'userId': userId}
   })
 }

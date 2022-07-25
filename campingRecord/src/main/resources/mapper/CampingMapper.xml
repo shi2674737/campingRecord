@@ -27,6 +27,6 @@
     left join address a on a.id = c.address_id
     where cur.user_id = #{item.userId}
     and c.delete_flag = 0
-    order by create_time desc;
+    order by create_time desc
   </select>
 </mapper>

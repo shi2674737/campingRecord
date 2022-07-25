@@ -3,6 +3,7 @@ package com.example.campingrecord.controller;
 
 import com.example.campingrecord.service.OssService;
 import com.example.campingrecord.vo.result.UResult;
+import com.example.campingrecord.vo.UploadImageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,10 +21,10 @@ public class OssController {
     OssService ossService;
 
     @PostMapping("/uploadImage")
-    public UResult<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    public UResult<UploadImageVo> uploadImage(@RequestParam("file") MultipartFile file) {
         log.info("uploadImage start.");
-        String url = ossService.uploadImage(file);
+        UploadImageVo uploadImageVo = ossService.uploadImage(file);
         log.info("uploadImage done.");
-        return UResult.ok().data(url);
+        return UResult.ok().data(uploadImageVo);
     }
 }

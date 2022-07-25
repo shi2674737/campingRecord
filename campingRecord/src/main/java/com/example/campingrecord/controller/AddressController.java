@@ -52,4 +52,16 @@ public class AddressController {
         log.info("getAddressDetail success. addressDetail = {}", addressDetail);
         return UResult.ok().data(addressDetail);
     }
+
+    /**
+     * 填充下拉菜单
+     * @return
+     */
+    @GetMapping("/getAllAddressList")
+    public UResult<List<Address>> getAllAddressList() {
+        log.info("getAddressDetail start.");
+        List<Address> address = addressService.getAllAddressList();
+        log.info("getAddressDetail success.");
+        return UResult.ok().data(address);
+    }
 }

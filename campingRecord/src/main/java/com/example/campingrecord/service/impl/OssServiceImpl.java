@@ -5,6 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.example.campingrecord.exception.BaseException;
 import com.example.campingrecord.service.OssService;
+import com.example.campingrecord.vo.UploadImageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class OssServiceImpl implements OssService {
      * @return
      */
     @Override
-    public String uploadImage(MultipartFile file) {
+    public UploadImageVo uploadImage(MultipartFile file) {
         OSS ossClient = getOSSClient();
         UUID uuid = UUID.randomUUID();
         String filename = file.getResource().getFilename();
@@ -44,7 +45,10 @@ public class OssServiceImpl implements OssService {
         try {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, filename, new ByteArrayInputStream(file.getBytes()));
             ossClient.putObject(putObjectRequest);
-            return filename;
+            UploadImageVo uploadImageVo = new UploadImageVo();
+            uploadImageVo.setPath(filename);
+            uploadImageVo.setUrl(getImageUrl(filename));
+            return uploadImageVo;
         } catch (Exception ex) {
             log.error("updateImage failed. ex = ", ex);
             throw new BaseException("图片上传失败");

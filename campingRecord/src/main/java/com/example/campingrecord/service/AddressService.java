@@ -6,6 +6,8 @@ import com.example.campingrecord.dto.AddressDto;
 import com.example.campingrecord.entity.Address;
 import com.example.campingrecord.vo.AddressDetailVo;
 
+import java.util.List;
+
 public interface AddressService extends IService<Address> {
     void addAddress(AddressDto.AddAddressDto addAddressDto);
 
@@ -14,4 +16,6 @@ public interface AddressService extends IService<Address> {
     Page<Address> getAddressList(AddressDto.GetAddressListDto getAddressListDto);
 
     AddressDetailVo getAddressDetail(AddressDto.GetAddressDetailDto getAddressDetailDto);
+
+    List<Address> getAllAddressList();
 }

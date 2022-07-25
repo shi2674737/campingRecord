@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class CampingListVo {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
     /**
      * 地点

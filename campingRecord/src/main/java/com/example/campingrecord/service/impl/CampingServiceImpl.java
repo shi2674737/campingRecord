@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.campingrecord.constant.CampingVisibleEnum;
 import com.example.campingrecord.constant.DeleteFlagEnum;
 import com.example.campingrecord.dto.CampingRecordDto;
 import com.example.campingrecord.entity.*;
@@ -166,6 +167,7 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         Long campingId = getCampingRecordDetailDto.getCampingId();
         Camping camping = baseMapper.selectById(campingId);
         BeanUtils.copyProperties(camping, campingDetailVo);
+        campingDetailVo.setVisibleStatusStr(CampingVisibleEnum.of(campingDetailVo.getVisibleStatus()).getName());
 
         // 获取所有图片
         LambdaQueryWrapper<CampingImage> campingImageQuery = new LambdaQueryWrapper<>();

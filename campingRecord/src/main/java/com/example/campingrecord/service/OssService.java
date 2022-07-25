@@ -1,9 +1,10 @@
 package com.example.campingrecord.service;
 
+import com.example.campingrecord.vo.UploadImageVo;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface OssService {
-    String uploadImage(MultipartFile file);
+    UploadImageVo uploadImage(MultipartFile file);
 
     String getImageUrl(String imageUrl);
 }

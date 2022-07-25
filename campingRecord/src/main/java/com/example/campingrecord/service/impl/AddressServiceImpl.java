@@ -79,4 +79,10 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
         }
         return addressDetailVo;
     }
+
+    @Override
+    public List<Address> getAllAddressList() {
+        LambdaQueryWrapper<Address> queryWrapper = new LambdaQueryWrapper<>();
+        return baseMapper.selectList(queryWrapper);
+    }
 }
