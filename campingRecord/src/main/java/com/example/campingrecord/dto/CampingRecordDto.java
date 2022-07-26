@@ -59,7 +59,7 @@ public class CampingRecordDto {
         private String remark;
 
         // 图片url
-        private List<String> images;
+        private List<CampingImageDto> images;
 
         // 关联用户id
         private List<Long> relationUserId;
@@ -111,12 +111,22 @@ public class CampingRecordDto {
         private Long totalAmount;
 
         /**
+         * 参与人数
+         */
+        private int peopleNum;
+
+        /**
+         * 天气
+         */
+        private String weather;
+
+        /**
          * 备注
          */
         private String remark;
 
         // 图片url
-        private List<String> images;
+        private List<CampingImageDto> images;
 
         // 关联用户id
         private List<Long> relationUserId;

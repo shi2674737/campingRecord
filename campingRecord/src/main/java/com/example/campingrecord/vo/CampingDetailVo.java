@@ -10,6 +10,8 @@ import java.util.List;
 
 @Data
 public class CampingDetailVo {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long id;
     /**
      * 地点
      */

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.campingrecord.constant.CampingVisibleEnum;
 import com.example.campingrecord.constant.DeleteFlagEnum;
+import com.example.campingrecord.dto.CampingImageDto;
 import com.example.campingrecord.dto.CampingRecordDto;
 import com.example.campingrecord.entity.*;
 import com.example.campingrecord.exception.BaseException;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,6 +60,9 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         baseMapper.insert(camping);
         // 存关联人
         List<Long> relationUserIds = addCampingRecordDto.getRelationUserId();
+        if (relationUserIds == null) {
+            relationUserIds = new ArrayList<>();
+        }
         relationUserIds.add(userId);
         if (CollectionUtils.isNotEmpty(relationUserIds)) {
             List<CampingUserRelation> campingUserRelations = relationUserIds.stream().map(relationUserId -> {
@@ -69,7 +74,7 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
             campingUserRelationService.saveBatch(campingUserRelations);
         }
         // 存图片
-        List<String> images = addCampingRecordDto.getImages();
+        List<String> images = addCampingRecordDto.getImages().stream().map(CampingImageDto::getName).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(images)) {
             List<CampingImage> campingImages = images.stream().map(image -> {
                 CampingImage campingImage = new CampingImage();
@@ -109,9 +114,15 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         camping.setUpdateTime(LocalDateTime.now());
         baseMapper.updateById(camping);
 
-        // 更新关联人
+        // 更新关联人 先删再插入
         List<Long> relationUserIds = updateCampingRecordDto.getRelationUserId();
+        if (relationUserIds == null) {
+            relationUserIds = new ArrayList<>();
+        }
         relationUserIds.add(userId);
+        LambdaQueryWrapper<CampingUserRelation> campingUserRelationLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        campingUserRelationLambdaQueryWrapper.eq(CampingUserRelation::getCampingId, updateCampingRecordDto.getId());
+        campingUserRelationService.remove(campingUserRelationLambdaQueryWrapper);
         if (CollectionUtils.isNotEmpty(relationUserIds)) {
             List<CampingUserRelation> campingUserRelations = relationUserIds.stream().map(relationUserId -> {
                 CampingUserRelation campingUserRelation = new CampingUserRelation();
@@ -119,11 +130,14 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
                 campingUserRelation.setUserId(relationUserId);
                 return campingUserRelation;
             }).collect(Collectors.toList());
-            campingUserRelationService.updateBatchById(campingUserRelations);
+            campingUserRelationService.saveBatch(campingUserRelations);
         }
 
-        // 更新图片
-        List<String> images = updateCampingRecordDto.getImages();
+        // 更新图片 先删再插入
+        LambdaQueryWrapper<CampingImage> campingImageLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        campingImageLambdaQueryWrapper.eq(CampingImage::getCampingId, updateCampingRecordDto.getId());
+        campingImageService.remove(campingImageLambdaQueryWrapper);
+        List<String> images = updateCampingRecordDto.getImages().stream().map(CampingImageDto::getName).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(images)) {
             List<CampingImage> campingImages = images.stream().map(image -> {
                 CampingImage campingImage = new CampingImage();
@@ -131,7 +145,7 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
                 campingImage.setImageUrl(image);
                 return campingImage;
             }).collect(Collectors.toList());
-            campingImageService.updateBatchById(campingImages);
+            campingImageService.saveBatch(campingImages);
         }
 
         // 更新评价评论
@@ -177,7 +191,8 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
             CampingImageVo campingImageVo = new CampingImageVo();
             BeanUtils.copyProperties(campingImage, campingImageVo);
             String imageFullUrl = ossService.getImageUrl(campingImage.getImageUrl());
-            campingImageVo.setImageFullUrl(imageFullUrl);
+            campingImageVo.setName(campingImage.getImageUrl());
+            campingImageVo.setUrl(imageFullUrl);
             return campingImageVo;
         }).collect(Collectors.toList());
         campingDetailVo.setImages(campingImageVoList);

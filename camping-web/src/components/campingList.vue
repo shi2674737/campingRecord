@@ -2,18 +2,6 @@
     <div id="campingList">
         <div class="nav">
             <el-button class="button" @click="createCampingRecord" type="text">新增露营记录</el-button>
-<!--            <el-button class="button" @click="exportCartoonRecord" type="text">导出追番记录</el-button>-->
-<!--            <el-upload class="upload"-->
-<!--                   accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"-->
-<!--                   action=""-->
-<!--                   :limit=1-->
-<!--                   :http-request="uploadHttpRequest"-->
-<!--                   :on-exceed="exceedFile"-->
-<!--                   :before-upload="beforeUpload"-->
-<!--                   :on-success="uploadSuccess"-->
-<!--                   :on-error="uploadError">-->
-<!--                <el-button class="button" type="text">导入追番记录</el-button>-->
-<!--            </el-upload>-->
             <div class="nav-mid"></div>
             <el-input class="search" @keyup.enter.native="getCampingByAddressName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">
             </el-input>
@@ -55,7 +43,7 @@
                             type="text"
                             size="small"
                             icon="el-icon-edit"
-                            @click="updateRow(scope.row)"
+                            @click="updateRow(scope.row.id)"
                     >修改</el-button>
                       <el-button
                           type="text"
@@ -70,6 +58,7 @@
                         <el-button
                             type="text"
                             size="small"
+                            v-show="scope.row.isOwn"
                             icon="el-icon-delete"
                             slot="reference"
                         >删除</el-button>
@@ -93,7 +82,7 @@
         <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateFlag">
             <el-form :rules="rules" :model="campingRecord" ref="campingRecord" label-width="120px">
                 <el-form-item label="露营地点" prop="addressId">
-                <el-select v-model="campingRecord.addressId" :disabled="isChangeStatus" clearable filterable placeholder="请选择露营地点">
+                <el-select v-model="campingRecord.addressId" clearable filterable placeholder="请选择露营地点">
                     <el-option
                             v-for="item in addressList"
                             :key="item.id"
@@ -103,7 +92,7 @@
                 </el-select>
                 </el-form-item>
               <el-form-item label="可见权限" prop="visibleStatus">
-                <el-select v-model="campingRecord.visibleStatus" :disabled="isChangeStatus" clearable filterable placeholder="请选择可见权限">
+                <el-select v-model="campingRecord.visibleStatus" clearable filterable placeholder="请选择可见权限">
                   <el-option
                       v-for="item in visibleStatusList"
                       :key="item.code"
@@ -117,6 +106,7 @@
                         v-model="campingRecord.campingStartTime"
                         align="right"
                         type="datetime"
+                        value-format="yyyy-MM-dd hh:mm:ss"
                         placeholder="请选择时间"
                         :picker-options="pickerOptions">
                 </el-date-picker>
@@ -126,6 +116,7 @@
                     v-model="campingRecord.campingEndTime"
                     align="right"
                     type="datetime"
+                    value-format="yyyy-MM-dd hh:mm:ss"
                     placeholder="请选择时间"
                     :picker-options="pickerOptions">
                 </el-date-picker>
@@ -159,6 +150,7 @@
                     :file-list="fileList"
                     :before-upload="beforeUpload"
                     :limit="maxCount"
+                    :on-remove="handleRemove"
                     :on-exceed="handleExceed"
                     :http-request="httpRequest"
                     :class="{ hide: hideUploadEdit }"
@@ -213,7 +205,7 @@
             <div>
                <h4>评分：{{campingDetail.score}}</h4>
             </div>
-            <el-image v-for="image in campingDetail.images" :key="image.imageFullUrl" :src="image.imageFullUrl" lazy></el-image>
+            <el-image v-for="image in campingDetail.images" :key="image.name" :src="image.url" lazy></el-image>
         </el-dialog>
 
     </div>
@@ -224,7 +216,7 @@ import {
   addCampingRecord,
   deleteMyCampingRecord,
   getCampingRecordDetail,
-  getMyCampingRecordList,
+  getMyCampingRecordList, updateCampingRecord,
 } from '@/api/camping'
 import {getAllAddressList} from "@/api/address";
 import {uploadImage} from "@/api/oss";
@@ -241,10 +233,9 @@ import {uploadImage} from "@/api/oss";
               return false
             }
           },
-          // handlePreview(file) {
-          //   this.dialogVisible = true
-          //   this.dialogImageUrl = file.url
-          // },
+          handleRemove(file, fileList) {
+            this.fileList = fileList
+          },
           async httpRequest(file) {
             let form = new FormData();
             form.append('file', file.file);
@@ -267,54 +258,22 @@ import {uploadImage} from "@/api/oss";
 
                 this.showDetailFlag = true;
             },
-
+            // 删除
             async deleteRow(campingId) {
               await deleteMyCampingRecord(campingId);
 
               this.filterForm.pageNo = 1
               this.getCampingList()
             },
-            editCartoonRelation(cartoonPartRelation) {
-                // this.dialogTitle = "编辑状态"
-                // this.showCreateFlag = true
-                // this.isChangeStatus = true
-                // this.isEditStatus = true
-                //
-                // this.cartoonNameRadio = true
-                // this.cartoonPartNameRadio = true
-                // this.getAllCartoonInfos().then(() => {
-                //     this.cartoonInfo.id = this.campingDetail.cartoonInfo.id.toString()
-                // })
-                // this.getAllCartoonParts().then(() => {
-                //     this.cartoonInfo.cartoonPart.id = this.campingDetail.id.toString()
-                // })
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.id = cartoonPartRelation.id;
-                // this.cartoonInfo.cartoonPart.cartoonPartRelation.comment = cartoonPartRelation.comment;
-                // this.cartoonInfo.cartoonPart.cartoonPartRelation.rate = cartoonPartRelation.rate;
-                // this.cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus = cartoonPartRelation.relationStatus;
-                // this.cartoonInfo.cartoonPart.cartoonPartRelation.relationDate = cartoonPartRelation.relationDate;
-                //
-                // this.rules.name = [];
-                // this.rules["cartoonPart.name"] = [];
-            },
-
-            // 变更状态
-            changeStatus(row) {
-                this.dialogTitle = "状态追加"
-                this.showCreateFlag = true
-                this.isChangeStatus = true
-
-                this.cartoonNameRadio = true
-                this.cartoonPartNameRadio = true
-                this.getAllCartoonInfos().then(() => {
-                    this.cartoonInfo.id = row.cartoonInfo.id.toString()
-                })
-                this.getAllCartoonParts().then(() => {
-                    this.cartoonInfo.cartoonPart.id = row.id.toString()
-                })
-
-                this.rules.name = [];
-                this.rules["cartoonPart.name"] = [];
+            // 修改
+            async updateRow(campingId) {
+              this.getAllAddress()
+              const res = await getCampingRecordDetail({"campingId": campingId});
+              this.campingRecord = res.data
+              this.fileList = res.data.images
+              this.showCreateFlag = true
+              this.isChangeStatus = true
+              this.dialogTitle = "修改露营记录"
             },
 
             // 新建
@@ -327,8 +286,14 @@ import {uploadImage} from "@/api/oss";
             async submitForm() {
                 this.$refs['campingRecord'].validate( async (valid) => {
                     if (valid) {
-                      this.campingRecord.images = this.fileList;
-                        const res = await addCampingRecord(this.campingRecord);
+                        this.campingRecord.images = this.fileList;
+                        let res;
+                      console.log(this.isChangeStatus)
+                        if (this.isChangeStatus) {
+                          res = await updateCampingRecord(this.campingRecord);
+                        } else {
+                          res = await addCampingRecord(this.campingRecord);
+                        }
                         if (res.code == 200) {
                             this.isChangeStatus = false;
                             this.showCreateFlag = false;
@@ -341,6 +306,8 @@ import {uploadImage} from "@/api/oss";
                             this.rules.id = [];
                             this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
                             this.rules["cartoonPart.id"] = [];
+                            // 重置上传控件
+                            this.fileList = [];
 
 
                             if (this.isEditStatus) {
@@ -372,75 +339,11 @@ import {uploadImage} from "@/api/oss";
                 this.rules.id = [];
                 this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
                 this.rules["cartoonPart.id"] = [];
+                // 重置上传控件
+                this.fileList = [];
 
                 this.getCampingByAddressName();
                 // done();
-            },
-            cartoonInfoRadioChange() {
-                if (this.cartoonNameRadio == false) {
-                    //新增
-                    this.cartoonPartNameRadio = false;
-                    this.cartoonPartDisabledFlag = true;
-                    if (this.cartoonInfo.id != null) {
-                        this.cartoonInfo.id = null;
-                    }
-                    if (this.cartoonInfo.cartoonPart.id != null) {
-                        this.cartoonInfo.cartoonPart.id = null;
-                    }
-                    this.rules.name = [].concat(this.nameRule);
-                    this.rules.id = [];
-                    this.$refs['campingRecord'].clearValidate(['id']);
-                    this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                    this.rules["cartoonPart.id"] = [];
-                    this.$refs['campingRecord'].clearValidate(['cartoonPart.id']);
-                } else {
-                    //选择
-                    this.rules.id = [].concat(this.idRule);
-                    this.rules.name = [];
-                    this.$refs['campingRecord'].clearValidate(['name']);
-                }
-            },
-            cartoonPartRadioChange() {
-                if (this.cartoonPartNameRadio == false) {
-                    if (this.cartoonInfo.cartoonPart.id != null) {
-                        this.cartoonInfo.cartoonPart.id = null;
-                    }
-                    this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                    this.rules["cartoonPart.id"] = [];
-                    this.$refs['campingRecord'].clearValidate(['cartoonPart.id']);
-                } else {
-                    this.rules["cartoonPart.id"] = [].concat(this.cartoonPartIdRule);
-                    this.rules["cartoonPart.name"] = [];
-                    this.$refs['campingRecord'].clearValidate(['cartoonPart.name']);
-                }
-            },
-            clearCartoonInfoSelectList() {
-                this.cartoonPartDisabledFlag = true;
-                this.cartoonPartNameRadio = false;
-                this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                this.rules["cartoonPart.id"] = [];
-                this.$refs['campingRecord'].clearValidate(['cartoonPart.id']);
-                this.cartoonInfo.cartoonPart.id = null;
-                this.getAllCartoonParts(null)
-            },
-            changeCartoonStatus(val) {
-                switch (val)
-                {
-                    case "1":this.dateLabelName = "计划追番日期";
-                        break;
-                    case "2":this.dateLabelName = "开始追番日期";
-                        break;
-                    case "3":this.dateLabelName = "追番结束日期";
-                        break;
-                    case "4":this.dateLabelName = "放弃追番日期";
-                        break;
-                    default:
-                        this.dateLabelName = "选择日期";
-                        break;
-                }
-                if (this.cartoonInfo.cartoonPart.cartoonPartRelation.comment != null) {
-                    this.cartoonInfo.cartoonPart.cartoonPartRelation.comment = null
-                }
             },
 
             // 分页
@@ -449,7 +352,6 @@ import {uploadImage} from "@/api/oss";
                 this.getCampingList()
             },
 
-            // 查询番名
             async getCampingByAddressName() {
                 this.filterForm.pageNo = 1
                 this.getCampingList()
@@ -502,6 +404,7 @@ import {uploadImage} from "@/api/oss";
 
                 cartoonNames: [],
                 campingRecord:{
+                  id:undefined,
                   addressId:undefined,
                   visibleStatus:undefined,
                   campingStartTime:undefined,

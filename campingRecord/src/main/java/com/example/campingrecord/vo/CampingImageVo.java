@@ -10,7 +10,7 @@ public class CampingImageVo {
 
     private Long campingId;
 
-    private String imageUrl;
+    private String name;
 
-    private String imageFullUrl;
+    private String url;
 }
