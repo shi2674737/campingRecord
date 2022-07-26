@@ -370,7 +370,7 @@ import {uploadImage} from "@/api/oss";
                 // this.cartoonPartList = res.data;
             },
         },
-        created() {
+        activated() {
             this.getCampingByAddressName();
         },
         data() {

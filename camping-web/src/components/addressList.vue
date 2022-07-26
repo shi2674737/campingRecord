@@ -242,7 +242,7 @@ import {getAddressList,
                 this.total = res.data.total;
             },
         },
-        created() {
+        activated() {
             this.getAddressName();
         },
         data() {

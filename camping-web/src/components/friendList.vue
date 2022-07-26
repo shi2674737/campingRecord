@@ -187,7 +187,7 @@ import {
                 this.total = res.data.total;
             },
         },
-        created() {
+        activated() {
             this.getFriendName();
         },
         data() {
