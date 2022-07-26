@@ -40,19 +40,19 @@ public class AddressDetailVo {
     private String remark;
 
     /**
-     * 能否使用卡式炉
+     * 关于使用卡式炉
      */
-    private Integer sycls;
+    private String sycls;
 
     /**
-     * 能否使用碳
+     * 关于使用碳
      */
-    private Integer carbon;
+    private String carbon;
 
     /**
-     * 能否过夜
+     * 关于过夜
      */
-    private Integer overnight;
+    private String overnight;
 
     /**
      * 优点

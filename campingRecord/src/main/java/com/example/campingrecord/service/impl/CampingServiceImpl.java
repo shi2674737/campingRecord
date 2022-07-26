@@ -148,18 +148,20 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
             campingImageService.saveBatch(campingImages);
         }
 
-        // 更新评价评论
+        // 更新评价评论 先删再插入
         CampingAddressComment campingAddressComment = new CampingAddressComment();
         campingAddressComment.setScore(updateCampingRecordDto.getScore());
         campingAddressComment.setComment(updateCampingRecordDto.getComment());
         campingAddressComment.setAddressId(updateCampingRecordDto.getAddressId());
         campingAddressComment.setCampingId(camping.getId());
+        campingAddressComment.setCreateBy(userId);
+        campingAddressComment.setCreateTime(LocalDateTime.now());
         campingAddressComment.setUpdateBy(userId);
         campingAddressComment.setUpdateTime(LocalDateTime.now());
         LambdaQueryWrapper<CampingAddressComment> campingAddressCommentQuery = new LambdaQueryWrapper<>();
-        campingAddressCommentQuery.eq(CampingAddressComment::getAddressId, campingAddressComment.getAddressId());
         campingAddressCommentQuery.eq(CampingAddressComment::getCampingId, campingAddressComment.getCampingId());
-        campingAddressCommentService.update(campingAddressComment, campingAddressCommentQuery);
+        campingAddressCommentService.remove(campingAddressCommentQuery);
+        campingAddressCommentService.save(campingAddressComment);
     }
 
     @Override

@@ -17,7 +17,7 @@ const createRouter = () =>
 const monitorRouter = [
   {
     path: '/',
-    redirect: '/index/campingList'
+    redirect: '/index/addressList'
   },
   {
     path: '/index',
@@ -28,13 +28,11 @@ const monitorRouter = [
           path: 'addressList',
           name: 'addressList',
           component: () => import('@/components/addressList'),
-          // meta: { title: "追番记录" }
       },
       {
           path: 'campingList',
           name: 'campingList',
           component: () => import('@/components/campingList'),
-          // meta: { title: "追番记录" }
       }
     ]
   },

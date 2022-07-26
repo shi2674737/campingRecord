@@ -1,47 +1,34 @@
 <template>
     <div id="addressList">
         <div class="nav">
-            <el-button class="button" @click="createCartoonRecord" type="text">新增追番记录</el-button>
-            <el-button class="button" @click="exportCartoonRecord" type="text">导出追番记录</el-button>
-            <el-upload class="upload"
-                   accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                   action=""
-                   :limit=1
-                   :http-request="uploadHttpRequest"
-                   :on-exceed="exceedFile"
-                   :before-upload="beforeUpload"
-                   :on-success="uploadSuccess"
-                   :on-error="uploadError">
-                <el-button class="button" type="text">导入追番记录</el-button>
-            </el-upload>
+            <el-button class="button" @click="createCampingAddress" type="text">新增露营地点</el-button>
             <div class="nav-mid"></div>
-            <el-input class="search" @keyup.enter.native="getCartoonByName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">
-            </el-input>
+<!--            <el-input class="search" @keyup.enter.native="getAddressName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">-->
+<!--            </el-input>-->
         </div>
         <div>
             <el-table
-                    :data="tableData"
-                    :row-class-name="tableRowClassName">
+                    :data="tableData">
+                <el-table-column
+                        min-width="20%"
+                        align="center"
+                        prop="name"
+                        label="露营地名称">
+                </el-table-column>
                 <el-table-column
                         min-width="40%"
                         align="center"
-                        prop="name"
-                        label="番剧分季名称">
+                        prop="detailAddress"
+                        label="详细地址">
                 </el-table-column>
                 <el-table-column
-                        min-width="17%"
+                        min-width="10%"
                         align="center"
-                        prop="cartoonPartRelation.relationStatusName"
-                        label="最终状态">
+                        prop="cost"
+                        label="收费标准">
                 </el-table-column>
                 <el-table-column
-                        min-width="23%"
-                        align="center"
-                        prop="cartoonPartRelation.relationDate"
-                        label="日期">
-                </el-table-column>
-                <el-table-column
-                        min-width="20%"
+                        min-width="30%"
                         align="center"
                         prop="operation"
                         label="操作">
@@ -50,16 +37,14 @@
                             type="text"
                             size="small"
                             icon="el-icon-edit"
-                            @click="changeStatus(scope.row)"
-                    >状态追加</el-button
-                    >
-                    <el-button
-                            type="text"
-                            size="small"
-                            icon="el-icon-more-outline"
-                            @click="showDetail(scope.row.id)"
-                    >详情</el-button
-                    >
+                            @click="updateRow(scope.row.id)"
+                    >修改</el-button>
+                      <el-button
+                          type="text"
+                          size="small"
+                          icon="el-icon-more"
+                          @click="showDetail(scope.row.id)"
+                      >查看</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -69,95 +54,45 @@
             <el-pagination
                     @background=true
                     @current-change="handleCurrentChange"
-                    :current-page.sync="filterForm.pageNum"
+                    :current-page.sync="filterForm.pageNo"
                     :page-size="filterForm.pageSize"
                     layout="prev, pager, next, jumper"
                     :total="total">
             </el-pagination>
         </div>
         <!-- 新建  -->
-        <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateCartoonRecord">
-            <el-form :rules="rules" :model="cartoonInfo" ref="cartoonInfo" label-width="120px">
-                <el-form-item v-show="!cartoonNameRadio" label="番剧名称" prop="name">
-                    <el-radio v-model="cartoonNameRadio" @change="cartoonInfoRadioChange" :disabled="isChangeStatus" :label=false>新增番剧</el-radio>
-                    <el-radio v-model="cartoonNameRadio" @change="cartoonInfoRadioChange" :disabled="isChangeStatus" :label=true>选择已有番剧</el-radio>
-                    <el-input class="input" v-model="cartoonInfo.name" maxlength="255" placeholder="请输入番剧名称"></el-input>
+        <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateFlag">
+            <el-form :rules="rules" :model="addressData" ref="addressData" label-width="120px">
+                <el-form-item label="露营地名称" prop="name">
+                  <el-input class="input" v-model="addressData.name" maxlength="50" placeholder="请输入露营地名称" show-word-limit></el-input>
                 </el-form-item>
-                <el-form-item v-show="cartoonNameRadio" label="番剧名称" prop="id">
-                <el-radio v-model="cartoonNameRadio" @change="cartoonInfoRadioChange" :disabled="isChangeStatus" :label=false>新增番剧</el-radio>
-                <el-radio v-model="cartoonNameRadio" @change="cartoonInfoRadioChange" :disabled="isChangeStatus" :label=true>选择已有番剧</el-radio>
-                <el-select v-model="cartoonInfo.id" :disabled="isChangeStatus" clearable @clear="clearCartoonInfoSelectList" @change="changeCartoonInfoSelectList" filterable placeholder="请选择番剧">
-                    <el-option
-                            v-for="item in cartoonInfoList"
-                            :key="item.code"
-                            :label="item.value"
-                            :value="item.code">
-                    </el-option>
-                </el-select>
-                </el-form-item>
-                <el-form-item v-show="!cartoonPartNameRadio" label="分季名称" prop="cartoonPart.name">
-                    <el-radio v-model="cartoonPartNameRadio" @change="cartoonPartRadioChange" :disabled="isChangeStatus" :label=false>新增分季</el-radio>
-                    <el-radio v-model="cartoonPartNameRadio" @change="cartoonPartRadioChange" :disabled="isChangeStatus || cartoonPartDisabledFlag" :label=true>选择已有分季</el-radio>
-                    <el-input class="input" v-model="cartoonInfo.cartoonPart.name" maxlength="255" placeholder="请输入分季名称"></el-input>
-                </el-form-item>
-                <el-form-item v-show="cartoonPartNameRadio" label="分季名称" prop="cartoonPart.id">
-                    <el-radio v-model="cartoonPartNameRadio" @change="cartoonPartRadioChange" :disabled="isChangeStatus" :label=false>新增分季</el-radio>
-                    <el-radio v-model="cartoonPartNameRadio" @change="cartoonPartRadioChange" :disabled="isChangeStatus || cartoonPartDisabledFlag" :label=true>选择已有分季</el-radio>
-                    <el-select v-model="cartoonInfo.cartoonPart.id" :disabled="isChangeStatus" clearable filterable placeholder="请选择分季">
-                        <el-option
-                                v-for="item in cartoonPartList"
-                                :key="item.code"
-                                :label="item.value"
-                                :value="item.code">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="追番状态" prop="cartoonPart.cartoonPartRelation.relationStatus">
-                    <el-radio-group size="mini" @change="changeCartoonStatus" v-model="cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus">
-                        <el-radio-button label=1>计划追番</el-radio-button>
-                        <el-radio-button label=2>开始追番</el-radio-button>
-                        <el-radio-button label=3>追番结束</el-radio-button>
-                        <el-radio-button label=4>放弃追番</el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item v-show="cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus != null" :label="dateLabelName" prop="cartoonPart.cartoonPartRelation.relationDate">
-                    <el-date-picker
-                            v-model="cartoonInfo.cartoonPart.cartoonPartRelation.relationDate"
-                            align="right"
-                            type="date"
-                            value-format="yyyy-MM-dd"
-                            placeholder="选择日期"
-                            :picker-options="pickerOptions">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item v-show="cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus == 4" label="放弃原因" prop="cartoonPart.cartoonPartRelation.giveUpReason">
-                    <el-input
-                            class="text"
-                            type="textarea"
-                            placeholder="请输入原因"
-                            v-model="cartoonInfo.cartoonPart.cartoonPartRelation.comment"
-                            maxlength="500"
-                            show-word-limit
-                    >
-                    </el-input>
-                </el-form-item>
-                <el-form-item v-show="cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus == 3" label="评论" prop="cartoonPart.cartoonPartRelation.comment">
-                    <el-input
-                            class="text"
-                            type="textarea"
-                            placeholder="请输入评价"
-                            v-model="cartoonInfo.cartoonPart.cartoonPartRelation.comment"
-                            maxlength="500"
-                            show-word-limit
-                    >
-                    </el-input>
-                </el-form-item>
-                <el-form-item v-show="cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus == 3" label="评分" prop="cartoonPart.cartoonPartRelation.rate">
-                    <el-rate
-                            v-model="cartoonInfo.cartoonPart.cartoonPartRelation.rate"
-                            :colors="colors">
-                    </el-rate>
-                </el-form-item>
+              <el-form-item label="详细地址" prop="detailAddress">
+                <el-input class="input" v-model="addressData.detailAddress" maxlength="200" placeholder="请输入详细地址" show-word-limit></el-input>
+              </el-form-item>
+              <el-form-item label="收费标准" prop="cost">
+                <el-input class="input" v-model="addressData.cost" maxlength="50" placeholder="请输入收费标准" show-word-limit></el-input>
+              </el-form-item>
+              <el-form-item label="联系电话" prop="phone">
+                <el-input class="input" v-model="addressData.phone" maxlength="100" placeholder="请输入联系电话" show-word-limit></el-input>
+              </el-form-item>
+              <el-form-item label="备注" prop="remark">
+                <el-input class="input" v-model="addressData.remark" maxlength="200" placeholder="请输入备注" show-word-limit></el-input>
+              </el-form-item>
+              <el-form-item label="关于卡式炉" prop="sycls">
+                <el-input class="input" v-model="addressData.sycls" maxlength="30"></el-input>
+              </el-form-item>
+              <el-form-item label="关于用碳" prop="carbon">
+                <el-input class="input" v-model="addressData.carbon" maxlength="30"></el-input>
+              </el-form-item>
+              <el-form-item label="关于过夜" prop="overnight">
+                <el-input class="input" v-model="addressData.overnight" maxlength="30"></el-input>
+              </el-form-item>
+              <el-form-item label="优点" prop="advantage">
+                <el-input class="input" v-model="addressData.advantage" maxlength="100" placeholder="请输入优点" show-word-limit></el-input>
+              </el-form-item>
+              <el-form-item label="缺点" prop="disadvantage">
+                <el-input class="input" v-model="addressData.disadvantage" maxlength="100" placeholder="请输入缺点" show-word-limit></el-input>
+              </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
         <el-button @click="cancel()">取 消</el-button>
@@ -168,182 +103,96 @@
         </el-dialog>
 
         <!-- 详情 -->
-        <el-dialog title="追番记录详情" :visible.sync="showDetailCartoonRecord">
+        <el-dialog title="露营记录详情" :visible.sync="showDetailFlag">
             <div>
-                <h4>番剧名称：{{cartoonRelationDetails.cartoonInfo.name}}</h4>
+                <h4>露营地名称：{{addressDetail.name}}</h4>
             </div>
-            <div class="timeline-head">
-                <h4>分季名称：{{cartoonRelationDetails.name}}</h4>
+            <div>
+                <h4>详细地址：{{addressDetail.detailAddress}}</h4>
             </div>
-            <el-timeline>
-                <el-timeline-item
-                        class="timeline"
-                        v-for="(cartoonPartRelation, index) in cartoonRelationDetails.cartoonPartRelations"
-                        :key="index"
-                        color="#409eff"
-                        :timestamp="cartoonPartRelation.relationDate"
-                        placement="top">
-                    <el-card @click.native="editCartoonRelation(cartoonPartRelation)">
-                        <p>状态：{{cartoonPartRelation.relationStatusName}}</p>
-                        <p v-if="cartoonPartRelation.comment != null">评论：{{cartoonPartRelation.comment}}</p>
-                        <el-rate
-                                disabled
-                                v-if="cartoonPartRelation.rate != null"
-                                v-model="cartoonPartRelation.rate"
-                                :colors="colors">
-                        </el-rate>
-                        <p v-if="cartoonPartRelation.updateTime != null">更新时间：{{cartoonPartRelation.updateTime.replace('T',' ')}}</p>
-                        <p v-if="cartoonPartRelation.updateTime == null">更新时间：{{cartoonPartRelation.createTime.replace('T',' ')}}</p>
-                    </el-card>
-                </el-timeline-item>
-            </el-timeline>
+            <div>
+                <h4>收费标准：{{addressDetail.cost}}</h4>
+            </div>
+            <div>
+                <h4>联系电话：{{addressDetail.phone}}</h4>
+            </div>
+            <div>
+                <h4>备注：{{addressDetail.remark}}</h4>
+            </div>
+            <div>
+                <h4>关于使用卡式炉：{{addressDetail.sycls}}</h4>
+            </div>
+            <div>
+               <h4>关于使用碳：{{addressDetail.carbon}}</h4>
+            </div>
+            <div>
+               <h4>关于过夜：{{addressDetail.overnight}}</h4>
+            </div>
+            <div>
+               <h4>优点：{{addressDetail.advantage}}</h4>
+            </div>
+            <div>
+                <h4>缺点：{{addressDetail.disadvantage}}</h4>
+            </div>
+            <div>
+              <h4>平均分：{{addressDetail.avgScore}}</h4>
+            </div>
         </el-dialog>
 
     </div>
 </template>
 
 <script>
-    import {
-        getCartoonParts,
-        getCartoonRelationDetail,
-        getAllCartoonInfos,
-        getAllCartoonParts,
-        addCartoonRecord,
-        exportCartoonRecords,
-        uploadCartoonRecords,
-    } from '@/api/cartoon'
+import {getAddressList,
+        getAddressDetail,
+        updateAddress,
+        addAddress} from "@/api/address";
 
     export default {
         methods: {
-            // 行颜色
-            tableRowClassName({row}) {
-                if (row.cartoonPartRelation.relationStatus == 3) {
-                    // 追番完成
-                    return 'success-row';
-                } else if (row.cartoonPartRelation.relationStatus == 4) {
-                    // 看过一部分但 不想再追了
-                    return 'warning-row';
-                }
-                return '';
-            },
-
-            // 导出
-            async exportCartoonRecord() {
-                await exportCartoonRecords(1)
-            },
-
-            // 导入
-            beforeUpload(file) {
-                let extension = file.name.substring(file.name.lastIndexOf('.')+1);
-                let size = file.size / 1024 / 1024;
-                if(extension !== 'xlsx') {
-                    this.$message.warning('只能上传后缀是.xlsx的文件');
-                }
-                if(size > 10) {
-                    this.$message.warning('文件大小不得超过10M');
-                }
-            },
-            uploadSuccess() {
-                this.$message.success('文件上传成功');
-            },
-            uploadError() {
-                this.$message.error('文件上传失败');
-            },
-            exceedFile() {
-                this.$message.warning(`只能选择 1 个文件`);
-            },
-            async uploadHttpRequest(param) {
-                let form = new FormData();
-                form.append('file', param.file);
-                await uploadCartoonRecords(form, 1);
-            },
-            async uploadFile() {
-                let form = new FormData();
-                form.append('file', this.fileList);
-                await uploadCartoonRecords(form, 1);
-            },
 
             // 详情
-            async showDetail(partId) {
-                const res = await getCartoonRelationDetail(partId, 1);
-                this.cartoonRelationDetails = res.data;
+            async showDetail(id) {
+                const res = await getAddressDetail({"id": id});
+                this.addressDetail = res.data;
 
-                this.showDetailCartoonRecord = true;
+                this.showDetailFlag = true;
             },
-            editCartoonRelation(cartoonPartRelation) {
-                this.dialogTitle = "编辑状态"
-                this.showCreateCartoonRecord = true
-                this.isChangeStatus = true
-                this.isEditStatus = true
-
-                this.cartoonNameRadio = true
-                this.cartoonPartNameRadio = true
-                this.getAllCartoonInfos().then(() => {
-                    this.cartoonInfo.id = this.cartoonRelationDetails.cartoonInfo.id.toString()
-                })
-                this.getAllCartoonParts().then(() => {
-                    this.cartoonInfo.cartoonPart.id = this.cartoonRelationDetails.id.toString()
-                })
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.id = cartoonPartRelation.id;
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.comment = cartoonPartRelation.comment;
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.rate = cartoonPartRelation.rate;
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.relationStatus = cartoonPartRelation.relationStatus;
-                this.cartoonInfo.cartoonPart.cartoonPartRelation.relationDate = cartoonPartRelation.relationDate;
-
-                this.rules.name = [];
-                this.rules["cartoonPart.name"] = [];
-            },
-
-            // 变更状态
-            changeStatus(row) {
-                this.dialogTitle = "状态追加"
-                this.showCreateCartoonRecord = true
-                this.isChangeStatus = true
-
-                this.cartoonNameRadio = true
-                this.cartoonPartNameRadio = true
-                this.getAllCartoonInfos().then(() => {
-                    this.cartoonInfo.id = row.cartoonInfo.id.toString()
-                })
-                this.getAllCartoonParts().then(() => {
-                    this.cartoonInfo.cartoonPart.id = row.id.toString()
-                })
-
-                this.rules.name = [];
-                this.rules["cartoonPart.name"] = [];
+            // 修改
+            async updateRow(id) {
+              const res = await getAddressDetail({"id": id});
+              this.addressData = res.data
+              this.fileList = res.data.images
+              this.showCreateFlag = true
+              this.isChangeStatus = true
+              this.dialogTitle = "修改露营地点"
             },
 
             // 新建
-            createCartoonRecord() {
-                this.showCreateCartoonRecord = true
+            createCampingAddress() {
+                this.showCreateFlag = true
                 this.isChangeStatus = false
-                this.dialogTitle = "新增追番记录"
-                this.getAllCartoonInfos()
-                this.getAllCartoonParts()
+                this.dialogTitle = "新增露营地点"
             },
             async submitForm() {
-                this.$refs['cartoonInfo'].validate( async (valid) => {
+                this.$refs['addressData'].validate( async (valid) => {
                     if (valid) {
-                        const res = await addCartoonRecord(this.cartoonInfo, 1);
+                        this.addressData.images = this.fileList;
+                        let res;
+                      console.log(this.isChangeStatus)
+                        if (this.isChangeStatus) {
+                          res = await updateAddress(this.addressData);
+                        } else {
+                          res = await addAddress(this.addressData);
+                        }
                         if (res.code == 200) {
                             this.isChangeStatus = false;
-                            this.showCreateCartoonRecord = false;
-                            this.$refs['cartoonInfo'].resetFields()
-                            // 重置按钮
-                            this.cartoonNameRadio= false;
-                            this.cartoonPartNameRadio= false;
-                            // 重置校验规则
-                            this.rules.name = [].concat(this.nameRule);
-                            this.rules.id = [];
-                            this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                            this.rules["cartoonPart.id"] = [];
+                            this.showCreateFlag = false;
+                            this.$refs['addressData'].resetFields()
+                            // 重置上传控件
+                            this.fileList = [];
 
-
-                            if (this.isEditStatus) {
-                                this.showDetail(this.cartoonRelationDetails.id)
-                                this.isEditStatus = false;
-                            }
-                            this.getCartoonByName();
+                            this.getAddressName();
                             return true;
                         } else {
                             alert("error submit!!");
@@ -356,172 +205,76 @@
             },
             cancel() {
                 this.isChangeStatus = false;
-                this.isEditStatus = false;
-                this.showCreateCartoonRecord = false;
-                this.$refs['cartoonInfo'].resetFields();
+                this.showCreateFlag = false;
+                this.$refs['addressData'].resetFields();
                 this.cartoonInfo.cartoonPart.cartoonPartRelation = {}
-                // 重置按钮
-                this.cartoonNameRadio= false;
-                this.cartoonPartNameRadio= false;
-                // 重置校验规则
-                this.rules.name = [].concat(this.nameRule);
-                this.rules.id = [];
-                this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                this.rules["cartoonPart.id"] = [];
+                // 重置上传控件
+                this.fileList = [];
 
-                this.getCartoonByName();
+                this.getAddressName();
                 // done();
-            },
-            cartoonInfoRadioChange() {
-                if (this.cartoonNameRadio == false) {
-                    //新增
-                    this.cartoonPartNameRadio = false;
-                    this.cartoonPartDisabledFlag = true;
-                    if (this.cartoonInfo.id != null) {
-                        this.cartoonInfo.id = null;
-                    }
-                    if (this.cartoonInfo.cartoonPart.id != null) {
-                        this.cartoonInfo.cartoonPart.id = null;
-                    }
-                    this.rules.name = [].concat(this.nameRule);
-                    this.rules.id = [];
-                    this.$refs['cartoonInfo'].clearValidate(['id']);
-                    this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                    this.rules["cartoonPart.id"] = [];
-                    this.$refs['cartoonInfo'].clearValidate(['cartoonPart.id']);
-                } else {
-                    //选择
-                    this.rules.id = [].concat(this.idRule);
-                    this.rules.name = [];
-                    this.$refs['cartoonInfo'].clearValidate(['name']);
-                }
-            },
-            cartoonPartRadioChange() {
-                if (this.cartoonPartNameRadio == false) {
-                    if (this.cartoonInfo.cartoonPart.id != null) {
-                        this.cartoonInfo.cartoonPart.id = null;
-                    }
-                    this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                    this.rules["cartoonPart.id"] = [];
-                    this.$refs['cartoonInfo'].clearValidate(['cartoonPart.id']);
-                } else {
-                    this.rules["cartoonPart.id"] = [].concat(this.cartoonPartIdRule);
-                    this.rules["cartoonPart.name"] = [];
-                    this.$refs['cartoonInfo'].clearValidate(['cartoonPart.name']);
-                }
-            },
-            changeCartoonInfoSelectList(val) {
-                if (val == null) {
-                    this.cartoonPartDisabledFlag = true;
-                } else {
-                    this.cartoonPartDisabledFlag = false;
-                }
-                if (this.cartoonInfo.cartoonPart.id != null) {
-                    this.cartoonInfo.cartoonPart.id = null;
-                }
-                this.getAllCartoonParts(val)
-            },
-            clearCartoonInfoSelectList() {
-                this.cartoonPartDisabledFlag = true;
-                this.cartoonPartNameRadio = false;
-                this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                this.rules["cartoonPart.id"] = [];
-                this.$refs['cartoonInfo'].clearValidate(['cartoonPart.id']);
-                this.cartoonInfo.cartoonPart.id = null;
-                this.getAllCartoonParts(null)
-            },
-            changeCartoonStatus(val) {
-                switch (val)
-                {
-                    case "1":this.dateLabelName = "计划追番日期";
-                        break;
-                    case "2":this.dateLabelName = "开始追番日期";
-                        break;
-                    case "3":this.dateLabelName = "追番结束日期";
-                        break;
-                    case "4":this.dateLabelName = "放弃追番日期";
-                        break;
-                    default:
-                        this.dateLabelName = "选择日期";
-                        break;
-                }
-                if (this.cartoonInfo.cartoonPart.cartoonPartRelation.comment != null) {
-                    this.cartoonInfo.cartoonPart.cartoonPartRelation.comment = null
-                }
             },
 
             // 分页
             handleCurrentChange(val) {
-                this.filterForm.pageNum = val
-                this.getCartoonList()
+                this.filterForm.pageNo = val
+                this.getAddressList()
             },
 
-            // 查询番名
-            async getCartoonByName() {
-                this.filterForm.pageNum = 1
-                this.getCartoonList()
+            async getAddressName() {
+                this.filterForm.pageNo = 1
+                this.getAddressList()
             },
 
-            async getCartoonList() {
-                const res = await getCartoonParts(this.filterForm, 1)
-                this.tableData = res.rows;
-                this.total = res.total;
-            },
-            // 获取番剧名称select列表
-            async getAllCartoonInfos() {
-                const res = await getAllCartoonInfos()
-                this.cartoonInfoList = res.data;
-            },
-            // 获取分季名称select列表
-            async getAllCartoonParts(cartoonId) {
-                const res = await getAllCartoonParts(cartoonId);
-                this.cartoonPartList = res.data;
+            async getAddressList() {
+                const res = await getAddressList(this.filterForm)
+                this.tableData = res.data.records;
+                this.total = res.data.total;
             },
         },
         created() {
-            this.getCartoonByName();
+            this.getAddressName();
         },
         data() {
             return {
-                cartoonRelationDetails: {
-                    cartoonInfo:{}
-                },
-                dialogTitle:"新增追番记录",
-                isEditStatus:false,
-                isChangeStatus:false,
-                showCreateCartoonRecord:false,
-                showDetailCartoonRecord:false,
-                cartoonNameRadio: false,
-                cartoonPartNameRadio: false,
-                cartoonPartDisabledFlag: true,
+                // 上传图片
+                maxCount:50,
+                hideUploadEdit: false,
+                dialogVisible: false,
+                disabled:false,
+                dialogImageUrl: null,
+                fileList: [],
 
-                fileList:[],
+                addressDetail: {
+                },
+                dialogTitle:"新增露营记录",
+                isChangeStatus:false,
+                showCreateFlag:false,
+                showDetailFlag:false,
 
                 // 新建页面下拉菜单
-                cartoonInfoList:[],
-                cartoonPartList:[],
+                addressList:[],
+                visibleStatusList:[{'code':0, 'value':'所有人可见'},
+                                 {'code':5, 'value':'关联人可见'}],
 
-                cartoonNames: [],
-                cartoonInfo:{
-                    id:undefined,
-                    name:undefined,
-                    cartoonPart:{
-                        id:undefined,
-                        name:undefined,
-                        cartoonPartRelation:{
-                            id:undefined,
-                            relationStatus: undefined,
-                            relationDate: undefined,
-                            comment:undefined,
-                            rate:undefined
-                        },
-                    },
+                addressData:{
+                  id:undefined,
+                  name:undefined,
+                  detailAddress:undefined,
+                  cost:undefined,
+                  phone:undefined,
+                  remark:undefined,
+                  sycls:undefined,
+                  carbon:undefined,
+                  overnight:undefined,
+                  advantage:undefined,
+                  disadvantage:undefined,
                 },
                 dateLabelName:"选择日期",
                 filterForm: {
-                    cartoonName: "",
+                    campingName: "",
                     pageSize: 10,
-                    pageNum: 1
+                    pageNo: 1
                 },
                 tableData: [],
                 total: 0,
@@ -580,26 +333,9 @@
                 // 校验规则
                 rules: {
                     name: [
-                        { required: true, message: '请输入番剧名称', trigger: 'blur' }
-                    ],
-                    id: [
-                        // { required: true, message: '请选择番剧名称', trigger: ["blur",'change']}
-                    ],
-                    'cartoonPart.name': [
-                        { required: true, message: '请输入分季名称', trigger: 'blur' }
-                    ],
-                    'cartoonPart.id': [
-                        // { required: true, message: '请输入分季名称', trigger: ["blur",'change']}
-                    ],
-                    'cartoonPart.cartoonPartRelation.relationStatus': [
-                        { required: true, message: '请选择追番状态', trigger: 'change' }
-                    ],
-                    // 'cartoonPart.cartoonPartRelation.relationDate': { required: true, message: '请选择日期', trigger: 'change' }
+                        { required: true, message: '请输入露营地名称', trigger: 'blur' }
+                    ]
                 },
-                nameRule: [{ required: true, message: '请输入番剧名称', trigger: 'blur' }],
-                idRule: [{ required: true, message: '请选择番剧名称', trigger: ["blur",'change']}],
-                cartoonPartNameRule: [{ required: true, message: '请输入分季名称', trigger: 'blur' }],
-                cartoonPartIdRule: [{ required: true, message: '请输入分季名称', trigger: ["blur",'change']}],
             }
         }
     }
@@ -654,9 +390,6 @@
     }
     .table {
         display: flex;
-    }
-    .timeline-head {
-        border-bottom: 1px solid #dcdfe6;
     }
     .timeline {
          margin: 14px;

@@ -13,7 +13,8 @@
                             active-text-color="#aaa">
                         <el-menu-item index="/index/addressList">露营地点</el-menu-item>
                         <el-menu-item index="/index/campingList">露营记录</el-menu-item>
-                        <el-menu-item @click="login">登录</el-menu-item>
+                        <el-menu-item @click="logout" v-show="isLoginFlag">登出</el-menu-item>
+                        <el-menu-item @click="login" v-show="!isLoginFlag">登录</el-menu-item>
                     </el-menu>
                     <div class="line"></div>
                 </div>
@@ -52,6 +53,7 @@
                 activeMenu: this.$route.path,
                 showLogin:false,
                 dialogTitle:'登录',
+                isLoginFlag:false,
                 note: {
                     backgroundImage:'url(' + require('../assets/777d58c0gy1g2m6c4l7a8j21gs0mi0yo.jpg') + ')',
                     backgroundRepeat: "no-repeat center top",
@@ -62,21 +64,33 @@
                 }
             };
         },
+
+        created() {
+            this.checkLoginFlag();
+        },
         methods: {
             handleSelect(key, keyPath) {
                 console.log(key, keyPath);
             },
-            // 新建
+            // 登出
+            logout() {
+                localStorage.removeItem('access_token')
+                this.isLoginFlag = false
+            },
+            // 登录
             login() {
                 this.showLogin = true
             },
-            // 新建
+            // 提交登录
             async submitLogin() {
                 const res = await login(this.user);
-                console.log(res);
                 window.localStorage.setItem('access_token', res.data)
                 this.showLogin = false
+                this.isLoginFlag = true
             },
+            checkLoginFlag() {
+              this.isLoginFlag = localStorage.getItem('access_token') != null
+            }
         }
     }
 </script>

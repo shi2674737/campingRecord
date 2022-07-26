@@ -7,8 +7,8 @@ package com.example.campingrecord.constant;
  */
 public enum TrueFalseEnum implements ConvertibleEnum<Integer> {
 
-    TRUE(0, "不是", 0),
-    FALSE(1, "是", 1);
+    FALSE(0, "不是", 0),
+    TRUE(1, "是", 1);
 
     private Integer code;
     private String name;

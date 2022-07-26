@@ -3,8 +3,8 @@
         <div class="nav">
             <el-button class="button" @click="createCampingRecord" type="text">新增露营记录</el-button>
             <div class="nav-mid"></div>
-            <el-input class="search" @keyup.enter.native="getCampingByAddressName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">
-            </el-input>
+<!--            <el-input class="search" @keyup.enter.native="getCampingByAddressName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">-->
+<!--            </el-input>-->
         </div>
         <div>
             <el-table
@@ -298,22 +298,9 @@ import {uploadImage} from "@/api/oss";
                             this.isChangeStatus = false;
                             this.showCreateFlag = false;
                             this.$refs['campingRecord'].resetFields()
-                            // 重置按钮
-                            this.cartoonNameRadio= false;
-                            this.cartoonPartNameRadio= false;
-                            // 重置校验规则
-                            this.rules.name = [].concat(this.nameRule);
-                            this.rules.id = [];
-                            this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                            this.rules["cartoonPart.id"] = [];
                             // 重置上传控件
                             this.fileList = [];
 
-
-                            if (this.isEditStatus) {
-                                this.showDetail(this.campingDetail.id)
-                                this.isEditStatus = false;
-                            }
                             this.getCampingByAddressName();
                             return true;
                         } else {
@@ -327,18 +314,9 @@ import {uploadImage} from "@/api/oss";
             },
             cancel() {
                 this.isChangeStatus = false;
-                this.isEditStatus = false;
                 this.showCreateFlag = false;
                 this.$refs['campingRecord'].resetFields();
                 this.cartoonInfo.cartoonPart.cartoonPartRelation = {}
-                // 重置按钮
-                this.cartoonNameRadio= false;
-                this.cartoonPartNameRadio= false;
-                // 重置校验规则
-                this.rules.name = [].concat(this.nameRule);
-                this.rules.id = [];
-                this.rules["cartoonPart.name"] = [].concat(this.cartoonPartNameRule);
-                this.rules["cartoonPart.id"] = [];
                 // 重置上传控件
                 this.fileList = [];
 
@@ -389,20 +367,15 @@ import {uploadImage} from "@/api/oss";
                 campingDetail: {
                 },
                 dialogTitle:"新增露营记录",
-                isEditStatus:false,
                 isChangeStatus:false,
                 showCreateFlag:false,
                 showDetailFlag:false,
-                cartoonNameRadio: false,
-                cartoonPartNameRadio: false,
-                cartoonPartDisabledFlag: true,
 
                 // 新建页面下拉菜单
                 addressList:[],
                 visibleStatusList:[{'code':0, 'value':'所有人可见'},
                                  {'code':5, 'value':'关联人可见'}],
 
-                cartoonNames: [],
                 campingRecord:{
                   id:undefined,
                   addressId:undefined,
@@ -481,27 +454,7 @@ import {uploadImage} from "@/api/oss";
                 },
                 // 校验规则
                 rules: {
-                    name: [
-                        { required: true, message: '请输入番剧名称', trigger: 'blur' }
-                    ],
-                    id: [
-                        // { required: true, message: '请选择番剧名称', trigger: ["blur",'change']}
-                    ],
-                    'cartoonPart.name': [
-                        { required: true, message: '请输入分季名称', trigger: 'blur' }
-                    ],
-                    'cartoonPart.id': [
-                        // { required: true, message: '请输入分季名称', trigger: ["blur",'change']}
-                    ],
-                    'cartoonPart.cartoonPartRelation.relationStatus': [
-                        { required: true, message: '请选择追番状态', trigger: 'change' }
-                    ],
-                    // 'cartoonPart.cartoonPartRelation.relationDate': { required: true, message: '请选择日期', trigger: 'change' }
                 },
-                nameRule: [{ required: true, message: '请输入番剧名称', trigger: 'blur' }],
-                idRule: [{ required: true, message: '请选择番剧名称', trigger: ["blur",'change']}],
-                cartoonPartNameRule: [{ required: true, message: '请输入分季名称', trigger: 'blur' }],
-                cartoonPartIdRule: [{ required: true, message: '请输入分季名称', trigger: ["blur",'change']}],
             }
         }
     }
