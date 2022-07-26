@@ -23,5 +23,41 @@ public class UserDto {
 
         @NotBlank
         private String username;
+
+        @NotBlank
+        private String phone;
+    }
+
+    @Data
+    public static class UpdateUserDto {
+        @NotBlank
+        private String id;
+
+        @NotBlank
+        private String account;
+
+        private String oldPassword;
+
+        private String newPassword;
+
+        @NotBlank
+        private String mail;
+
+        @NotBlank
+        private String realName;
+
+        @NotBlank
+        private String username;
+
+        @NotBlank
+        private String phone;
+    }
+
+
+    @Data
+    public static class GetUserDto {
+        private Long userId;
+        private Integer pageNo;
+        private Integer pageSize;
     }
 }

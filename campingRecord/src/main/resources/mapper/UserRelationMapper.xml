@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campingrecord.mapper.UserRelationMapper">
+    <select id="getFriendList"
+            resultType="com.example.campingrecord.entity.User">
+        select u.id,
+               u.account,
+               u.password,
+               u.mail,
+               u.real_name,
+               u.username,
+               u.phone
+        from user_relation ur
+        left join user u on u.id = ur.relation_user_id
+        where ur.user_id = #{userId};
+    </select>
+</mapper>

@@ -33,7 +33,12 @@ const monitorRouter = [
           path: 'campingList',
           name: 'campingList',
           component: () => import('@/components/campingList'),
-      }
+      },
+        {
+            path: 'friendList',
+            name: 'friendList',
+            component: () => import('@/components/friendList'),
+        }
     ]
   },
 ]

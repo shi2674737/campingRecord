@@ -162,7 +162,6 @@ import {getAddressList,
             async updateRow(id) {
               const res = await getAddressDetail({"id": id});
               this.addressData = res.data
-              this.fileList = res.data.images
               this.showCreateFlag = true
               this.isChangeStatus = true
               this.dialogTitle = "修改露营地点"
@@ -177,9 +176,7 @@ import {getAddressList,
             async submitForm() {
                 this.$refs['addressData'].validate( async (valid) => {
                     if (valid) {
-                        this.addressData.images = this.fileList;
                         let res;
-                      console.log(this.isChangeStatus)
                         if (this.isChangeStatus) {
                           res = await updateAddress(this.addressData);
                         } else {
@@ -188,9 +185,7 @@ import {getAddressList,
                         if (res.code == 200) {
                             this.isChangeStatus = false;
                             this.showCreateFlag = false;
-                            this.$refs['addressData'].resetFields()
-                            // 重置上传控件
-                            this.fileList = [];
+                            this.resetForm();
 
                             this.getAddressName();
                             return true;
@@ -206,13 +201,28 @@ import {getAddressList,
             cancel() {
                 this.isChangeStatus = false;
                 this.showCreateFlag = false;
-                this.$refs['addressData'].resetFields();
-                this.cartoonInfo.cartoonPart.cartoonPartRelation = {}
-                // 重置上传控件
-                this.fileList = [];
+                this.resetForm();
 
                 this.getAddressName();
                 // done();
+            },
+            // 重置表单对象
+            resetForm() {
+              let addressData = {
+                id:undefined,
+                name:undefined,
+                detailAddress:undefined,
+                cost:undefined,
+                phone:undefined,
+                remark:undefined,
+                sycls:undefined,
+                carbon:undefined,
+                overnight:undefined,
+                advantage:undefined,
+                disadvantage:undefined,
+              }
+              this['addressData'] = addressData
+              this.$refs['addressData'].resetFields();
             },
 
             // 分页
@@ -243,7 +253,6 @@ import {getAddressList,
                 dialogVisible: false,
                 disabled:false,
                 dialogImageUrl: null,
-                fileList: [],
 
                 addressDetail: {
                 },
@@ -258,17 +267,6 @@ import {getAddressList,
                                  {'code':5, 'value':'关联人可见'}],
 
                 addressData:{
-                  id:undefined,
-                  name:undefined,
-                  detailAddress:undefined,
-                  cost:undefined,
-                  phone:undefined,
-                  remark:undefined,
-                  sycls:undefined,
-                  carbon:undefined,
-                  overnight:undefined,
-                  advantage:undefined,
-                  disadvantage:undefined,
                 },
                 dateLabelName:"选择日期",
                 filterForm: {
@@ -282,54 +280,6 @@ import {getAddressList,
                 // 评分的颜色
                 colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
 
-                // 日期快捷选择
-                pickerOptions: {
-                    shortcuts: [{
-                        text: '今天',
-                        onClick(picker) {
-                            picker.$emit('pick', new Date());
-                        }
-                    }, {
-                        text: '昨天',
-                        onClick(picker) {
-                            const date = new Date();
-                            date.setTime(date.getTime() - 3600 * 1000 * 24);
-                            picker.$emit('pick', date);
-                        }
-                    }, {
-                        text: '下个1月1',
-                        onClick(picker) {
-                            const now = new Date();
-                            let date = new Date(now.getFullYear(), 0, 1);
-                            date = now < date ? date : new Date(now.getFullYear() + 1, 0, 1);
-                            picker.$emit('pick', date);
-                        }
-                    }, {
-                        text: '下个4月1',
-                        onClick(picker) {
-                            const now = new Date();
-                            let date = new Date(now.getFullYear(), 3, 1);
-                            date = now < date ? date : new Date(now.getFullYear() + 1, 3, 1);
-                            picker.$emit('pick', date);
-                        }
-                    }, {
-                        text: '下个7月1',
-                        onClick(picker) {
-                            const now = new Date();
-                            let date = new Date(now.getFullYear(), 6, 1);
-                            date = now < date ? date : new Date(now.getFullYear() + 1, 6, 1);
-                            picker.$emit('pick', date);
-                        }
-                    }, {
-                        text: '下个10月1',
-                        onClick(picker) {
-                            const now = new Date();
-                            let date = new Date(now.getFullYear(), 9, 1);
-                            date = now < date ? date : new Date(now.getFullYear() + 1, 9, 1);
-                            picker.$emit('pick', date);
-                        }
-                    }]
-                },
                 // 校验规则
                 rules: {
                     name: [

@@ -13,6 +13,7 @@
                             active-text-color="#aaa">
                         <el-menu-item index="/index/addressList">露营地点</el-menu-item>
                         <el-menu-item index="/index/campingList">露营记录</el-menu-item>
+                        <el-menu-item index="/index/friendList">我的朋友</el-menu-item>
                         <el-menu-item @click="logout" v-show="isLoginFlag">登出</el-menu-item>
                         <el-menu-item @click="login" v-show="!isLoginFlag">登录</el-menu-item>
                     </el-menu>

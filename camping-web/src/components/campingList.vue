@@ -288,7 +288,6 @@ import {uploadImage} from "@/api/oss";
                     if (valid) {
                         this.campingRecord.images = this.fileList;
                         let res;
-                      console.log(this.isChangeStatus)
                         if (this.isChangeStatus) {
                           res = await updateCampingRecord(this.campingRecord);
                         } else {
@@ -297,7 +296,7 @@ import {uploadImage} from "@/api/oss";
                         if (res.code == 200) {
                             this.isChangeStatus = false;
                             this.showCreateFlag = false;
-                            this.$refs['campingRecord'].resetFields()
+                            this.resetForm();
                             // 重置上传控件
                             this.fileList = [];
 
@@ -315,13 +314,33 @@ import {uploadImage} from "@/api/oss";
             cancel() {
                 this.isChangeStatus = false;
                 this.showCreateFlag = false;
-                this.$refs['campingRecord'].resetFields();
-                this.cartoonInfo.cartoonPart.cartoonPartRelation = {}
+                this.resetForm();
                 // 重置上传控件
                 this.fileList = [];
 
                 this.getCampingByAddressName();
                 // done();
+            },
+            // 重置表单对象
+            resetForm() {
+              let campingRecord = {
+                id:undefined,
+                addressId:undefined,
+                visibleStatus:undefined,
+                campingStartTime:undefined,
+                campingEndTime:undefined,
+                campingParticipant:undefined,
+                totalAmount:undefined,
+                peopleNum:undefined,
+                weather:undefined,
+                remark:undefined,
+                comment:undefined,
+                score:undefined,
+                images:[],
+                relationUserId:[],
+              }
+              this['campingRecord'] = campingRecord
+              this.$refs['campingRecord'].resetFields();
             },
 
             // 分页
@@ -377,20 +396,6 @@ import {uploadImage} from "@/api/oss";
                                  {'code':5, 'value':'关联人可见'}],
 
                 campingRecord:{
-                  id:undefined,
-                  addressId:undefined,
-                  visibleStatus:undefined,
-                  campingStartTime:undefined,
-                  campingEndTime:undefined,
-                  campingParticipant:undefined,
-                  totalAmount:undefined,
-                  peopleNum:undefined,
-                  weather:undefined,
-                  remark:undefined,
-                  comment:undefined,
-                  score:undefined,
-                  images:[],
-                  relationUserId:[],
                 },
                 dateLabelName:"选择日期",
                 filterForm: {
@@ -454,6 +459,12 @@ import {uploadImage} from "@/api/oss";
                 },
                 // 校验规则
                 rules: {
+                  addressId: [
+                    { required: true, message: '请选择露营地', trigger: 'blur' }
+                  ],
+                  visibleStatus: [
+                    { required: true, message: '请选择可见权限', trigger: 'blur' }
+                  ]
                 },
             }
         }
