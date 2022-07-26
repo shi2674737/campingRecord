@@ -5,7 +5,7 @@
                 <div class="top">
                     <el-menu
                             router
-                            default-active="/index/addressList"
+                            :default-active="$route.path"
                             class="menu"
                             mode="horizontal"
                             @select="handleSelect"
