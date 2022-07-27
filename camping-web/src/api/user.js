@@ -50,3 +50,10 @@ export function getFriendPage(params) {
     params: params,
   })
 }
+export function addFriend(userId) {
+  return request({
+    url: '/user/addUserRelation',
+    method: 'get',
+    params: {'userId': userId},
+  })
+}

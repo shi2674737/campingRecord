@@ -1,6 +1,5 @@
 package com.example.campingrecord.vo;
 
-import com.example.campingrecord.entity.CampingUserRelation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -74,7 +73,7 @@ public class CampingDetailVo {
     private List<CampingImageVo> images;
 
     // 关联的用户
-    private List<CampingUserRelation> userRelations;
+    private List<String> userIds;
 
     private String comment;
     private BigDecimal score;

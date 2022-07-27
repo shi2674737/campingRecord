@@ -39,10 +39,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public String login(LoginDto loginDto) {
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userLambdaQueryWrapper.eq(User::getAccount, loginDto.getAccount());
+        userLambdaQueryWrapper.eq(User::getAccount, loginDto.getAccount())
+                .or()
+                .eq(User::getPhone, loginDto.getAccount());
         User user = baseMapper.selectOne(userLambdaQueryWrapper);
         if (user == null) {
-            throw new BaseException("账号错误");
+            throw new BaseException("账号不正确");
         }
         String md5Str = MD5Util.getMD5Str(loginDto.getPassword());
         if (StringUtils.isEmpty(user.getPassword()) || !user.getPassword().equals(md5Str)) {
@@ -55,6 +57,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void addUser(UserDto.AddUserDto addUserDto) {
+        // 校验账号和手机号不能重复
+        String account = addUserDto.getAccount();
+        LambdaQueryWrapper<User> userQuery = new LambdaQueryWrapper<>();
+        userQuery.eq(User::getAccount, account);
+        if (baseMapper.selectCount(userQuery) > 0) {
+            throw new BaseException("账号不能重复");
+        }
+        String phone = addUserDto.getPhone();
+        LambdaQueryWrapper<User> userQuery2 = new LambdaQueryWrapper<>();
+        userQuery2.eq(User::getPhone, phone);
+        if (baseMapper.selectCount(userQuery2) > 0) {
+            throw new BaseException("手机号不能重复");
+        }
+
         // 新增用户
         User user = new User();
         BeanUtils.copyProperties(addUserDto, user);
@@ -84,14 +100,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     @Transactional
     public void addUserRelation(Long userId) {
+        if (UserUtil.getCurrentUser().getId().equals(userId)) {
+            return;
+        }
         // 互加好友
         UserRelation userRelation = new UserRelation();
         userRelation.setUserId(UserUtil.getCurrentUser().getId());
         userRelation.setRelationUserId(userId);
+        LambdaQueryWrapper<UserRelation> userRelationQuery = new LambdaQueryWrapper<>();
+        userRelationQuery.eq(UserRelation::getUserId, UserUtil.getCurrentUser().getId());
+        userRelationQuery.eq(UserRelation::getRelationUserId, userId);
+        userRelationService.remove(userRelationQuery);
         userRelationService.save(userRelation);
         UserRelation userRelation2 = new UserRelation();
         userRelation2.setUserId(userId);
         userRelation2.setRelationUserId(UserUtil.getCurrentUser().getId());
+        LambdaQueryWrapper<UserRelation> userRelationQuery2 = new LambdaQueryWrapper<>();
+        userRelationQuery2.eq(UserRelation::getUserId, userId);
+        userRelationQuery2.eq(UserRelation::getRelationUserId, UserUtil.getCurrentUser().getId());
+        userRelationService.remove(userRelationQuery2);
         userRelationService.save(userRelation2);
     }
 
@@ -117,13 +144,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public List<UserVo> getFriendList() {
         Long userId = UserUtil.getCurrentUser().getId();
         List<User> friendList = userRelationService.getFriendList(userId);
-        // 列表添加自己
-        User self = baseMapper.selectById(userId);
-        friendList.add(self);
 
         if (CollectionUtils.isEmpty(friendList)) {
             return new ArrayList<>();
         }
+        // 列表添加自己
+        User self = baseMapper.selectById(userId);
+        friendList.add(self);
         return friendList.stream().map(friend -> {
             UserVo userVo = new UserVo();
             BeanUtils.copyProperties(friend, userVo);

@@ -30,10 +30,10 @@
         <el-dialog customClass="customWidth" :title="dialogTitle" :visible.sync="showLogin">
             <el-form :rules="rules" :model="user" ref="cartoonInfo" label-width="120px">
                 <el-form-item label="账号" prop="account">
-                    <el-input class="input" v-model="user.account" maxlength="255" placeholder="请输入账号"></el-input>
+                    <el-input class="input" v-model="user.account" maxlength="255" placeholder="请输入账号或手机号"></el-input>
                 </el-form-item>
                 <el-form-item label="密码" prop="account">
-                    <el-input class="input" v-model="user.password" maxlength="255" placeholder="请输入密码"></el-input>
+                    <el-input class="input" v-model="user.password" maxlength="255" placeholder="请输入密码" show-password></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -88,6 +88,7 @@
                 window.localStorage.setItem('access_token', res.data)
                 this.showLogin = false
                 this.isLoginFlag = true
+                location.reload()
             },
             checkLoginFlag() {
               this.isLoginFlag = localStorage.getItem('access_token') != null

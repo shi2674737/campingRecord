@@ -10,31 +10,31 @@
             <el-table
                     :data="tableData">
                 <el-table-column
-                        min-width="40%"
+                        min-width="41%"
                         align="center"
                         prop="addressName"
                         label="露营地点">
                 </el-table-column>
                 <el-table-column
-                        min-width="10%"
+                        min-width="13%"
                         align="center"
                         prop="peopleNum"
                         label="人数">
                 </el-table-column>
                 <el-table-column
-                        min-width="10%"
+                        min-width="13%"
                         align="center"
                         prop="weather"
                         label="天气">
                 </el-table-column>
                 <el-table-column
-                        min-width="10%"
+                        min-width="13%"
                         align="center"
                         prop="score"
                         label="评分">
                 </el-table-column>
                 <el-table-column
-                        min-width="30%"
+                        min-width="20%"
                         align="center"
                         prop="operation"
                         label="操作">
@@ -79,7 +79,7 @@
             </el-pagination>
         </div>
         <!-- 新建  -->
-        <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateFlag">
+        <el-dialog :title="dialogTitle" :before-close="cancel" :close-on-click-modal=false :visible.sync="showCreateFlag">
             <el-form :rules="rules" :model="campingRecord" ref="campingRecord" label-width="120px">
                 <el-form-item label="露营地点" prop="addressId">
                 <el-select v-model="campingRecord.addressId" clearable filterable placeholder="请选择露营地点">
@@ -98,6 +98,16 @@
                       :key="item.code"
                       :label="item.value"
                       :value="item.code">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="关联好友" prop="relationUserId">
+                <el-select v-model="campingRecord.relationUserId" multiple clearable filterable placeholder="请选择好友" @change="handleSelectChange">
+                  <el-option
+                      v-for="item in friendList"
+                      :key="item.id"
+                      :label="item.realName"
+                      :value="item.id">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -220,6 +230,7 @@ import {
 } from '@/api/camping'
 import {getAllAddressList} from "@/api/address";
 import {uploadImage} from "@/api/oss";
+import {getFriendList} from "@/api/user";
 
     export default {
         methods: {
@@ -267,17 +278,22 @@ import {uploadImage} from "@/api/oss";
             },
             // 修改
             async updateRow(campingId) {
+              const res2 = await getFriendList()
+              this.friendList = res2.data
               this.getAllAddress()
               const res = await getCampingRecordDetail({"campingId": campingId});
               this.campingRecord = res.data
               this.fileList = res.data.images
+              this.campingRecord.relationUserId = res.data.userIds
               this.showCreateFlag = true
               this.isChangeStatus = true
               this.dialogTitle = "修改露营记录"
             },
 
             // 新建
-            createCampingRecord() {
+            async createCampingRecord() {
+                const res = await getFriendList()
+                this.friendList = res.data
                 this.getAllAddress()
                 this.showCreateFlag = true
                 this.isChangeStatus = false
@@ -364,6 +380,14 @@ import {uploadImage} from "@/api/oss";
                 const res = await getAllAddressList()
                 this.addressList = res.data;
             },
+            // 解决select多选框选中不显示的问题
+            handleSelectChange(val) {
+              if (val) {
+                this.$set(this.campingRecord, this.campingRecord.relationUserId, val)
+              } else {
+                this.$set(this.campingRecord, this.campingRecord.relationUserId, '')
+              }
+            },
             // 获取分季名称select列表
             async getAllCartoonParts() {
                 // const res = await getMyCampingRecordList(cartoonId);
@@ -384,6 +408,7 @@ import {uploadImage} from "@/api/oss";
                 fileList: [],
 
                 campingDetail: {
+                  relationUserId:[],
                 },
                 dialogTitle:"新增露营记录",
                 isChangeStatus:false,
@@ -392,6 +417,7 @@ import {uploadImage} from "@/api/oss";
 
                 // 新建页面下拉菜单
                 addressList:[],
+                friendList:[],
                 visibleStatusList:[{'code':0, 'value':'所有人可见'},
                                  {'code':5, 'value':'关联人可见'}],
 

@@ -63,7 +63,10 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         if (relationUserIds == null) {
             relationUserIds = new ArrayList<>();
         }
-        relationUserIds.add(userId);
+        // 创建时如果没选自己。把自己放进去
+        if (!relationUserIds.contains(userId)) {
+            relationUserIds.add(userId);
+        }
         if (CollectionUtils.isNotEmpty(relationUserIds)) {
             List<CampingUserRelation> campingUserRelations = relationUserIds.stream().map(relationUserId -> {
                 CampingUserRelation campingUserRelation = new CampingUserRelation();
@@ -119,7 +122,11 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         if (relationUserIds == null) {
             relationUserIds = new ArrayList<>();
         }
-        relationUserIds.add(userId);
+        // 如果没有创建人，把创建人放进去
+        Long createBy = baseMapper.selectById(updateCampingRecordDto.getId()).getCreateBy();
+        if (!relationUserIds.contains(createBy)) {
+            relationUserIds.add(createBy);
+        }
         LambdaQueryWrapper<CampingUserRelation> campingUserRelationLambdaQueryWrapper = new LambdaQueryWrapper<>();
         campingUserRelationLambdaQueryWrapper.eq(CampingUserRelation::getCampingId, updateCampingRecordDto.getId());
         campingUserRelationService.remove(campingUserRelationLambdaQueryWrapper);
@@ -203,7 +210,11 @@ public class CampingServiceImpl extends ServiceImpl<CampingMapper, Camping>
         LambdaQueryWrapper<CampingUserRelation> campingUserRelationQuery = new LambdaQueryWrapper<>();
         campingUserRelationQuery.eq(CampingUserRelation::getCampingId, campingId);
         List<CampingUserRelation> campingUserRelationList = campingUserRelationService.list(campingUserRelationQuery);
-        campingDetailVo.setUserRelations(campingUserRelationList);
+        List<String> userIds = campingUserRelationList.stream()
+                .map(CampingUserRelation::getUserId)
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+        campingDetailVo.setUserIds(userIds);
 
         // 获取评论评价
         LambdaQueryWrapper<CampingAddressComment> campingAddressCommentQuery = new LambdaQueryWrapper<>();

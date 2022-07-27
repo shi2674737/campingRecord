@@ -38,6 +38,14 @@ public class UserController {
         return UResult.ok();
     }
 
+    @GetMapping("/addUserRelation")
+    public UResult<String> addUserRelation(@RequestParam("userId") Long userId) {
+        log.info("addUserRelation start userId = {}", userId);
+        userService.addUserRelation(userId);
+        log.info("addUserRelation success.");
+        return UResult.ok();
+    }
+
     @PostMapping("/updateUser")
     public UResult<String> updateUser(@RequestBody @Valid UserDto.UpdateUserDto updateUserDto) {
         log.info("updateUser start updateUserDto = {}", updateUserDto);

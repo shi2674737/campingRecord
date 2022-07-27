@@ -2,6 +2,7 @@
     <div id="friendList">
         <div class="nav">
             <el-button class="button" @click="addUser" type="text">新增用户</el-button>
+            <el-button class="button" @click="addUserRelation" type="text">添加朋友</el-button>
             <div class="nav-mid"></div>
 <!--            <el-input class="search" @keyup.enter.native="getFriendName" v-model="filterForm.cartoonName" size="small" suffix-icon="el-icon-search" placeholder="请输入要搜索的番名">-->
 <!--            </el-input>-->
@@ -55,7 +56,7 @@
             </el-pagination>
         </div>
         <!-- 新建  -->
-        <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateFlag">
+        <el-dialog :title="dialogTitle" :before-close="cancel" :close-on-click-modal=false :visible.sync="showCreateFlag">
             <el-form :rules="rules" :model="userData" ref="userData" label-width="120px">
               <el-form-item label="账号" prop="account">
                 <el-input class="input" v-model="userData.account" maxlength="20" placeholder="请输入登录账号" show-word-limit></el-input>
@@ -92,13 +93,28 @@
         >
       </span>
         </el-dialog>
+      <!-- 添加朋友 -->
+      <el-dialog :title="dialogTitle" :before-close="cancelUserRelation" :close-on-click-modal=false :visible.sync="showUserRelationFlag">
+          <el-input class="input" v-model="phone" maxlength="20" placeholder="请输入对方手机号" show-word-limit></el-input>
+          <el-button type="primary" @click="getUserByPhone()">搜 索</el-button>
+          <el-divider></el-divider>
+        <el-row :gutter="20">
+          <el-col :span="6">
+          <el-descriptions-item v-show="userByPhone.realName" label="用户名">{{userByPhone.realName}}</el-descriptions-item>
+          </el-col>
+          <el-col :span="6">
+          <el-button v-show="userByPhone.realName" type="primary" @click="addFriend()">添加好友</el-button>
+          </el-col>
+        </el-row>
+      </el-dialog>
     </div>
 </template>
 
 <script>
 import {
+  addFriend,
   addUser,
-  getFriendPage,
+  getFriendPage, getUserByPhone,
   getUserDetail,
   updateUser
 } from "@/api/user";
@@ -120,6 +136,12 @@ import {
                 this.showCreateFlag = true
                 this.isChangeStatus = false
                 this.dialogTitle = "添加用户"
+            },
+
+            // 添加朋友
+            addUserRelation() {
+              this.showUserRelationFlag = true
+              this.dialogTitle = "添加朋友"
             },
             async submitForm() {
                 this.$refs['userData'].validate( async (valid) => {
@@ -151,6 +173,25 @@ import {
                 this.resetForm();
                 this.getFriendName();
                 // done();
+            },
+            cancelUserRelation() {
+              this.showUserRelationFlag = false;
+              this.phone = "";
+              this.userByPhone = {};
+            },
+            async getUserByPhone() {
+              if (this.phone === "") {
+                return;
+              }
+              const res = await getUserByPhone(this.phone);
+              this.userByPhone = res.data
+            },
+            async addFriend() {
+              await addFriend(this.userByPhone.id);
+              this.showUserRelationFlag = false;
+              this.phone = "";
+              this.userByPhone = {};
+              await this.getFriendName();
             },
             // 重置表单对象
             resetForm() {
@@ -231,7 +272,11 @@ import {
                 dialogTitle:"添加用户",
                 isChangeStatus:false,
                 showCreateFlag:false,
+                showUserRelationFlag:false,
                 showDetailFlag:false,
+
+                phone:"",
+                userByPhone:{},
 
                 // 新建页面下拉菜单
                 addressList:[],

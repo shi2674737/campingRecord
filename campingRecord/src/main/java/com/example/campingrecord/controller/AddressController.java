@@ -46,7 +46,7 @@ public class AddressController {
     }
 
     @GetMapping("/getAddressDetail")
-    public UResult<List<AddressDetailVo>> getAddressDetail(AddressDto.GetAddressDetailDto getAddressDetailDto) {
+    public UResult<AddressDetailVo> getAddressDetail(AddressDto.GetAddressDetailDto getAddressDetailDto) {
         log.info("getAddressDetail start getAddressListDto = {}", getAddressDetailDto);
         AddressDetailVo addressDetail = addressService.getAddressDetail(getAddressDetailDto);
         log.info("getAddressDetail success. addressDetail = {}", addressDetail);

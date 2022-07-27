@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,8 +68,10 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address>
         BeanUtils.copyProperties(address, addressDetailVo);
         LambdaQueryWrapper<CampingAddressComment> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CampingAddressComment::getAddressId, addressId);
+        queryWrapper.orderByDesc(CampingAddressComment::getCreateTime);
         // 获取关于这个地点的评论评分
         List<CampingAddressComment> commentList = commentService.list(queryWrapper);
+        commentList = commentList.stream().limit(10).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(commentList)) {
             addressDetailVo.setComments(commentList);
             // 求平均分数

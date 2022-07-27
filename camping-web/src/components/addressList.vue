@@ -22,13 +22,13 @@
                         label="详细地址">
                 </el-table-column>
                 <el-table-column
-                        min-width="10%"
+                        min-width="20%"
                         align="center"
                         prop="cost"
                         label="收费标准">
                 </el-table-column>
                 <el-table-column
-                        min-width="30%"
+                        min-width="20%"
                         align="center"
                         prop="operation"
                         label="操作">
@@ -61,7 +61,7 @@
             </el-pagination>
         </div>
         <!-- 新建  -->
-        <el-dialog :title="dialogTitle" :before-close="cancel" :visible.sync="showCreateFlag">
+        <el-dialog :title="dialogTitle" :before-close="cancel" :close-on-click-modal=false :visible.sync="showCreateFlag">
             <el-form :rules="rules" :model="addressData" ref="addressData" label-width="120px">
                 <el-form-item label="露营地名称" prop="name">
                   <el-input class="input" v-model="addressData.name" maxlength="50" placeholder="请输入露营地名称" show-word-limit></el-input>
@@ -137,6 +137,17 @@
             <div>
               <h4>平均分：{{addressDetail.avgScore}}</h4>
             </div>
+          <el-divider></el-divider>
+          <div>
+            <h1>最新评价</h1>
+          </div>
+          <el-divider></el-divider>
+          <div v-for="(item) in addressDetail.comments" :key="item.id">
+            <h4>评论：{{item.comment}}</h4>
+            <h4>评分：{{item.score}}</h4>
+            <h4>发布时间：{{item.createTime}}</h4>
+            <el-divider></el-divider>
+          </div>
         </el-dialog>
 
     </div>
@@ -255,6 +266,7 @@ import {getAddressList,
                 dialogImageUrl: null,
 
                 addressDetail: {
+                  comments:{}
                 },
                 dialogTitle:"新增露营记录",
                 isChangeStatus:false,
