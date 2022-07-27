@@ -146,7 +146,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<User> friendList = userRelationService.getFriendList(userId);
 
         if (CollectionUtils.isEmpty(friendList)) {
-            return new ArrayList<>();
+            friendList = new ArrayList<>();
         }
         // 列表添加自己
         User self = baseMapper.selectById(userId);
